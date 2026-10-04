@@ -2,7 +2,7 @@
   "id": "hutao",
   "displayName": "Hu Tao",
 
-  "//sprite": "Konfigurasi grid DEFAULT untuk semua animasi. Ubah di sini kalau ukuran sheet berubah. Tiap animasi di bawah boleh override field yang sama bila berbeda.",
+  "//sprite": "DEFAULT grid config for all animations. Change it here if the sheet size changes. Each animation below may override the same fields when different.",
   "sprite": {
     "frameWidth": 256,
     "frameHeight": 256,
@@ -11,7 +11,7 @@
     "frames": 15
   },
 
-  "//defaultFacing": "Arah hadap sprite walk apa adanya (sebelum di-flip). Ubah ke 'left' bila sheet diganti dengan yang menghadap kiri.",
+  "//defaultFacing": "Direction the walk sprite faces as-is (before flipping). Set to 'left' if the sheet is replaced with a left-facing one.",
   "renderScale": 0.5,
   "defaultFacing": "right",
 
@@ -20,7 +20,7 @@
     "walk": { "sheet": "walk.png", "fps": 14, "loop": true }
   },
 
-  "//actionAnimations": "Pemetaan action -> nama animasi. Action yang sheet-nya belum ada diarahkan ke 'idle' sebagai fallback.",
+  "//actionAnimations": "Maps action -> animation name. Actions without their own sheet point to 'idle' as a fallback.",
   "actionAnimations": {
     "idle": "idle",
     "walk": "walk",
@@ -28,6 +28,7 @@
     "look": "idle",
     "sit": "idle",
     "watch": "idle",
+    "write": "idle",
     "sleep": "idle",
     "happy": "idle",
     "surprised": "idle",

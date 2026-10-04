@@ -1,9 +1,9 @@
 /**
  * Target Selector.
  *
- * Memberi skor tiap kandidat dari DomScanner lalu memilih target secara
- * semi-random (weighted) agar perilaku tidak deterministik. Mengingat
- * beberapa target terakhir untuk penalti "recent" & bonus novelty.
+ * Scores each candidate from DomScanner, then picks a target with a weighted
+ * random so behavior isn't deterministic. Remembers the last few targets for a
+ * "recent" penalty and a novelty bonus.
  */
 (() => {
   "use strict";
@@ -11,13 +11,13 @@
 
   class TargetSelector {
     constructor() {
-      this.recent = []; // elemen yang baru dikunjungi
+      this.recent = []; // recently visited elements
     }
 
     /**
-     * @param {Array} candidates hasil DomScanner.scan()
-     * @param {object} settings pengaturan aktif (untuk filter behavior)
-     * @param {number|null} fromX posisi karakter saat ini (untuk penalti jarak)
+     * @param {Array} candidates result of DomScanner.scan()
+     * @param {object} settings active settings (used to filter behavior)
+     * @param {number|null} fromX current character position (distance penalty)
      */
     pick(candidates, settings, fromX) {
       const vh = window.innerHeight;
@@ -28,7 +28,7 @@
         if (score > 0) scored.push({ ...c, score });
       }
       if (!scored.length) return null;
-      // Weighted random dari top-N agar tetap cenderung memilih yang menarik
+      // Weighted random over the top-N so it still leans toward interesting ones
       scored.sort((a, b) => b.score - a.score);
       const pool = scored.slice(0, Math.min(6, scored.length));
       const picked = this._weightedRandom(pool);
@@ -39,11 +39,11 @@
     _score(c, vh, fromX) {
       let score = WCC.SEMANTIC_SCORE[c.type] || 0;
 
-      // visibility: makin dekat ke tengah viewport makin tinggi
+      // visibility: closer to the viewport center scores higher
       const centerDist = Math.abs(c.cy - vh / 2) / (vh / 2);
       score += (1 - WCC.clamp(centerDist, 0, 1)) * 20;
 
-      // size: elemen sedang lebih disukai (bukan terlalu kecil/raksasa)
+      // size: mid-sized elements are preferred (not tiny, not huge)
       const areaNorm = WCC.clamp(c.area / (window.innerWidth * vh), 0, 1);
       score += (1 - Math.abs(areaNorm - 0.15) / 0.85) * 15;
 
@@ -52,7 +52,7 @@
       else score += 10;
       score += Math.random() * WCC.CONFIG.randomFactorMax;
 
-      // penalti bila target terlalu dekat dengan posisi sekarang
+      // penalty when the target is too close to the current position
       if (fromX != null && Math.abs(c.cx - fromX) < 60) score -= 15;
 
       return score;
@@ -74,7 +74,7 @@
         return b.readHeadings !== false;
       if (["IMG"].includes(type)) return b.lookAtImages !== false;
       if (["BUTTON", "A"].includes(type)) return b.sitOnElements !== false;
-      return true; // video/code dll default boleh
+      return true; // video/code etc. are allowed by default
     }
 
     _remember(el) {

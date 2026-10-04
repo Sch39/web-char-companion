@@ -15,8 +15,22 @@ const DEFAULT_SETTINGS = {
     lookAtImages: true,
     sitOnElements: true,
     sleep: true,
+    reactToInput: true,
   },
 };
+
+// Initial list shown when the user hasn't customized it yet.
+const DEFAULT_SENSITIVE = [
+  "login", "signin", "sign-in", "auth", "account",
+  "bank", "payment", "checkout", "wallet", "password",
+];
+
+function parseHints(text) {
+  return text
+    .split(/[\n,]/)
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+}
 
 const $ = (id) => document.getElementById(id);
 
@@ -67,7 +81,7 @@ function sendToTab(payload, cb) {
 
 function reloadTab() {
   sendToTab({ type: "WCC_SETTINGS_CHANGED" });
-  // modul di-rebuild secara async; ambil status setelah sempat jalan
+  // modules rebuild asynchronously; read state after they've had time to start
   setTimeout(queryState, 450);
 }
 
@@ -100,11 +114,17 @@ async function load() {
   $("lookAtImages").checked = settings.behaviors.lookAtImages;
   $("sitOnElements").checked = settings.behaviors.sitOnElements;
   $("sleep").checked = settings.behaviors.sleep;
+  $("reactToInput").checked = settings.behaviors.reactToInput !== false;
+
+  const hints = Array.isArray(settings.sensitiveHints)
+    ? settings.sensitiveHints
+    : DEFAULT_SENSITIVE;
+  $("sensitiveHints").value = hints.join("\n");
 
   $("perTab").checked = !!override;
   $("character").value = override || globalChar;
 
-  $("site-host").textContent = currentHost || "halaman ini";
+  $("site-host").textContent = currentHost || "this page";
   $("site-rule").value =
     currentHost && siteRules[currentHost] ? siteRules[currentHost] : "default";
 
@@ -114,7 +134,7 @@ async function load() {
 function collectSettings() {
   return {
     enabled: $("enabled").checked,
-    character: globalChar, // karakter global tak diubah oleh pilihan per-tab
+    character: globalChar, // global character isn't changed by the per-tab choice
     activity: $("activity").value,
     reduceMotion: $("reduceMotion").checked,
     behaviors: {
@@ -123,7 +143,9 @@ function collectSettings() {
       lookAtImages: $("lookAtImages").checked,
       sitOnElements: $("sitOnElements").checked,
       sleep: $("sleep").checked,
+      reactToInput: $("reactToInput").checked,
     },
+    sensitiveHints: parseHints($("sensitiveHints").value),
   };
 }
 
@@ -155,7 +177,7 @@ async function onCharacterChange() {
   } else {
     globalChar = val;
     await saveGlobal();
-    await setTabChar(activeTabId, null); // ikut global lagi
+    await setTabChar(activeTabId, null); // follow the global character again
   }
   reloadTab();
 }
@@ -179,16 +201,16 @@ function setStateUI(mode) {
   const btn = $("toggle");
   dot.className = "dot " + mode;
   if (mode === "active") {
-    text.textContent = "Aktif";
-    btn.textContent = "Jeda";
+    text.textContent = "Active";
+    btn.textContent = "Pause";
     btn.disabled = false;
   } else if (mode === "paused") {
-    text.textContent = "Dijeda";
-    btn.textContent = "Lanjutkan";
+    text.textContent = "Paused";
+    btn.textContent = "Resume";
     btn.disabled = false;
   } else {
-    text.textContent = "Nonaktif di halaman ini";
-    btn.textContent = "Tidak aktif";
+    text.textContent = "Inactive on this page";
+    btn.textContent = "Inactive";
     btn.disabled = true;
   }
 }
@@ -221,6 +243,8 @@ function bind() {
     "lookAtImages",
     "sitOnElements",
     "sleep",
+    "reactToInput",
+    "sensitiveHints",
   ];
   for (const id of globalInputs) {
     $(id).addEventListener("change", saveSettingsAndReload);

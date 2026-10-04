@@ -1,9 +1,9 @@
 /**
  * Movement Engine
  *
- * Menggerakkan karakter pada visual plane (bukan mengikuti layout fisik DOM).
- * Hanya sumbu X yang di-"jalankan"; Y menempel pada lantai visual / posisi
- * target. Mengembalikan Promise yang resolve saat tiba atau dibatalkan.
+ * Moves the character on a visual plane (it doesn't follow the physical DOM
+ * layout). Only the X axis is "walked"; Y snaps to the visual floor or the
+ * target position. Returns a Promise that resolves on arrival or cancel.
  */
 (() => {
   "use strict";
@@ -16,31 +16,34 @@
       this._cancel = null;
     }
 
-    /** Preferred position karakter relatif target per action*/
+    /** Preferred character position relative to the target, per action. */
     anchorFor(action, rect) {
       const floor = window.innerHeight - WCC.CONFIG.floorOffset;
       let raw;
       switch (action) {
-        case "read": // bottom-left heading
+        case "read": // bottom-left of the heading
           raw = { x: rect.left + 24, y: rect.bottom + 4 };
           break;
-        case "sit": // di atas button/elemen
+        case "sit": // on top of the button/element
           raw = { x: rect.left + rect.width / 2, y: rect.top };
           break;
-        case "watch": // di bawah video
+        case "watch": // below the video
           raw = { x: rect.left + rect.width / 2, y: rect.bottom + 8 };
           break;
-        case "look": // di samping gambar
+        case "look": // beside the image
           raw = { x: rect.right + 8, y: rect.top + rect.height / 2 };
+          break;
+        case "write": // perched at the bottom-left of the field being typed in
+          raw = { x: rect.left + 20, y: rect.bottom + 4 };
           break;
         default:
           raw = { x: rect.left + rect.width / 2, y: floor };
       }
-      // Pastikan target tetap di dalam viewport & terjangkau.
+      // Keep the target inside the viewport and reachable.
       return this.r.clampFoot(raw.x, raw.y);
     }
 
-    /** Jalan ke titik (x,y). Resolve: 'arrived' | 'cancelled'. */
+    /** Walk to point (x,y). Resolves: 'arrived' | 'cancelled'. */
     walkTo(x, y) {
       this.cancel();
       const speed = WCC.CONFIG.walkSpeed;
@@ -89,7 +92,7 @@
       }
     }
 
-    /** Jaga karakter tetap di dalam viewport & di luar bar (mis. setelah resize). */
+    /** Keep the character inside the viewport and clear of bars (e.g. after resize). */
     clampToViewport() {
       const c = this.r.clampFoot(this.r.pos.x, this.r.pos.y);
       this.r.setPosition(c.x, c.y);

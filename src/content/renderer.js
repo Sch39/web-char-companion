@@ -1,9 +1,9 @@
 /**
- * Renderer karakter.
+ * Character renderer.
  *
- * Membuat overlay via Shadow DOM, lalu menganimasikan sprite sheet
- * dengan requestAnimationFrame + background-position stepping. Container
- * memakai position:fixed + pointer-events:none agar tidak mengganggu halaman.
+ * Creates the overlay via Shadow DOM, then animates the sprite sheet with
+ * requestAnimationFrame + background-position stepping. The container uses
+ * position:fixed + pointer-events:none so it doesn't interfere with the page.
  */
 (() => {
   "use strict";
@@ -15,23 +15,23 @@
       this.shadow = null;
       this.container = null;
       this.sprite = null;
-      this.anim = null; // definisi animation.json
+      this.anim = null; // animation.json definition
       this.sheetUrls = {}; // name -> objectURL/getURL
-      this.current = null; // nama animasi aktif
+      this.current = null; // active animation name
       this.facing = "left"; // 'left' | 'right'
       this.frame = 0;
       this.lastFrameTime = 0;
       this.rafId = null;
       this.visible = true;
-      this.pos = { x: 80, y: 0 }; // koordinat kaki (bottom-center) di viewport
+      this.pos = { x: 80, y: 0 }; // foot coords (bottom-center) in the viewport
       this.size = { w: 128, h: 128 };
-      this.insets = { top: 0, bottom: 0 }; // area terhalang bar fixed/sticky
+      this.insets = { top: 0, bottom: 0 }; // area blocked by fixed/sticky bars
     }
 
     async init(characterId) {
       this.anim = await this._loadManifest(characterId);
-      // Resolusi config: grid default dari blok `sprite`, boleh di-override
-      // per animasi. defs[name] = config lengkap yang dipakai renderer.
+      // Resolve config: default grid from the `sprite` block, overridable per
+      // animation. defs[name] = the full config the renderer uses.
       const grid = this.anim.sprite || {};
       this.defs = {};
       for (const [name, def] of Object.entries(this.anim.animations)) {
@@ -69,14 +69,14 @@
         `assets/chars/${characterId}/animation.json`,
       );
       const res = await fetch(url);
-      if (!res.ok) throw new Error(`gagal load animation.json (${res.status})`);
+      if (!res.ok) throw new Error(`failed to load animation.json (${res.status})`);
       return res.json();
     }
 
     _buildDom() {
       this.host = document.createElement("div");
       this.host.id = "wcc-host";
-      // host sendiri tidak mengubah layout
+      // the host itself must not affect page layout
       this.host.style.cssText =
         "all: initial; position: fixed; z-index:" +
         WCC.CONFIG.zIndex +
@@ -126,7 +126,7 @@
       `;
     }
 
-    /** Ganti animasi aktif. */
+    /** Switch the active animation. */
     play(name) {
       const resolved = this.defs[name] ? name : "idle";
       if (this.current === resolved) return;
@@ -145,7 +145,7 @@
       this._drawFrame();
     }
 
-    /** Posisi kaki karakter (bottom-center) pada koordinat viewport. */
+    /** Character foot position (bottom-center) in viewport coordinates. */
     setPosition(x, y) {
       this.pos.x = x;
       this.pos.y = y;
@@ -153,17 +153,17 @@
     }
 
     /**
-     * Batasi koordinat kaki agar seluruh badan karakter tetap di dalam
-     * viewport (tidak keluar window / tertutup chrome browser). Dipakai oleh
-     * anchor target & drag. Tidak dipakai di loop walk agar deteksi "tiba"
-     * tetap akurat — target sudah di-clamp lebih dulu.
+     * Clamp the foot coordinates so the whole character stays inside the
+     * viewport (not off-window / hidden behind browser chrome). Used by target
+     * anchors & drag. Not used inside the walk loop so "arrived" detection stays
+     * accurate — the target is clamped beforehand instead.
      */
     clampFoot(x, y) {
       const w = this.size.w;
       const h = this.size.h;
       const margin = WCC.CONFIG.topMargin || 0;
       const maxX = Math.max(w / 2, window.innerWidth - w / 2);
-      // kepala karakter (foot - h) harus di bawah bar atas + margin
+      // the head (foot - h) must sit below the top bar + margin
       const minY = this.insets.top + margin + h;
       let maxY =
         window.innerHeight - WCC.CONFIG.floorOffset - this.insets.bottom;
@@ -174,7 +174,7 @@
       };
     }
 
-    /** Perbarui tebal bar atas/bawah lalu koreksi posisi bila jadi di luar batas. */
+    /** Update top/bottom bar thickness, then re-clamp position if now out of range. */
     setInsets(top, bottom) {
       this.insets.top = Math.max(0, top || 0);
       this.insets.bottom = Math.max(0, bottom || 0);
@@ -192,11 +192,11 @@
       const def = this.defs[this.current];
       const col = this.frame % def.columns;
       const row = Math.floor(this.frame / def.columns) % def.rows;
-      // background-position dalam persen untuk sheet grid
+      // background-position as a percentage for the sheet grid
       const px = def.columns > 1 ? (col / (def.columns - 1)) * 100 : 0;
       const py = def.rows > 1 ? (row / (def.rows - 1)) * 100 : 0;
       this.sprite.style.backgroundPosition = `${px}% ${py}%`;
-      // Sheet default menghadap `defaultFacing`; flip jika beda arah.
+      // sheet faces `defaultFacing`; flip when heading the other way
       const flip = this.facing !== (this.anim.defaultFacing || "left");
       this.sprite.style.transform = flip ? "scaleX(-1)" : "scaleX(1)";
     }

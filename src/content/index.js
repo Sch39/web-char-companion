@@ -1,9 +1,9 @@
 /**
  * Content script bootstrap.
  *
- * Membaca settings + site rules, memutuskan apakah companion boleh tampil,
- * lalu merangkai Renderer + Scanner + Selector + Movement + Behavior +
- * Interaction. Mendengarkan pesan dari popup untuk pause/hide/reload-settings.
+ * Reads settings + site rules, decides whether the companion may appear, then
+ * wires up Renderer + Scanner + Selector + Movement + Behavior + Interaction.
+ * Listens for popup messages to pause/hide/reload-settings.
  */
 (async () => {
   "use strict";
@@ -29,19 +29,22 @@
 
   function isSensitivePage() {
     const hay = (location.hostname + location.pathname).toLowerCase();
-    return WCC.SENSITIVE_HINTS.some((h) => hay.includes(h));
+    const list = Array.isArray(app.settings?.sensitiveHints)
+      ? app.settings.sensitiveHints
+      : WCC.SENSITIVE_HINTS;
+    return list.some((h) => h && hay.includes(h));
   }
 
   function siteAllowed(siteRules) {
     const rule = siteRules[location.hostname];
     if (rule === "off") return false;
     if (rule === "on") return true;
-    // default: auto-disable di halaman sensitif
+    // default: auto-disable on sensitive pages
     return !isSensitivePage();
   }
 
-  // Tab ini boleh punya karakter sendiri (disimpan per-tab di background).
-  // Kalau tidak ada, pakai karakter global.
+  // This tab may have its own character (stored per-tab in the background).
+  // If it doesn't, fall back to the global character.
   async function resolveCharacter(globalChar) {
     try {
       const res = await chrome.runtime.sendMessage({
@@ -58,7 +61,7 @@
     app.settings = settings;
 
     if (!settings.enabled || !siteAllowed(siteRules)) {
-      WCC.log("companion dinonaktifkan untuk halaman ini");
+      WCC.log("companion disabled for this page");
       return;
     }
 
@@ -67,12 +70,12 @@
     try {
       await renderer.init(character);
     } catch (e) {
-      console.error("[WCC] gagal init renderer:", e);
+      console.error("[WCC] renderer init failed:", e);
       return;
     }
 
     const scanner = new WCC.DomScanner();
-    // Bar fixed/sticky yang terdeteksi -> batasi area gerak karakter.
+    // Detected fixed/sticky bars -> constrain the character's movement area.
     scanner.onInsets = (insets) =>
       renderer.setInsets(insets.top, insets.bottom);
     const selector = new WCC.TargetSelector();
@@ -90,7 +93,7 @@
     interaction.start();
     behavior.start();
 
-    // Hormati prefers-reduced-motion
+    // Respect prefers-reduced-motion
     if (
       settings.reduceMotion ||
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
@@ -107,7 +110,7 @@
       behavior,
       interaction,
     };
-    WCC.log("companion aktif di", location.hostname);
+    WCC.log("companion active on", location.hostname);
   }
 
   function teardown() {
@@ -120,7 +123,7 @@
     app.modules = null;
   }
 
-  // Pesan dari popup / service worker
+  // Messages from the popup / service worker
   chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     const m = app.modules;
     switch (msg?.type) {
@@ -139,7 +142,7 @@
         m?.behavior.resume();
         break;
       case "WCC_SETTINGS_CHANGED":
-        // reload penuh agar enable/karakter/site-rule ikut berubah
+        // full reload so enabled/character/site-rule changes take effect
         teardown();
         boot();
         break;

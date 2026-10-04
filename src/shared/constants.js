@@ -1,24 +1,24 @@
 /**
- * Konstanta & namespace global untuk content scripts.
+ * Global constants & namespace for the content scripts.
  *
- * Content script MV3 (yang di-list di manifest) berbagi satu global scope per
- * halaman, tetapi tidak mendukung `import`. Jadi tiap modul menempel ke
- * namespace `window.__WCC` ini. File ini HARUS dimuat paling awal.
+ * MV3 content scripts (listed in the manifest) share one global scope per page
+ * but do not support `import`. Each module attaches to this `window.__WCC`
+ * namespace, so this file MUST be loaded first.
  */
 (() => {
   "use strict";
 
-  if (window.__WCC) return; // sudah di-init (mis. di-inject dua kali)
+  if (window.__WCC) return; // already initialized (e.g. injected twice)
 
   const WCC = {};
 
-  // Kunci penyimpanan chrome.storage.sync
+  // chrome.storage.sync keys
   WCC.STORAGE_KEYS = {
     SETTINGS: "wcc.settings",
     SITE_RULES: "wcc.siteRules",
   };
 
-  // Pengaturan default
+  // Default settings
   WCC.DEFAULT_SETTINGS = {
     enabled: true,
     character: "hutao",
@@ -30,10 +30,11 @@
       lookAtImages: true,
       sitOnElements: true,
       sleep: true,
+      reactToInput: true,
     },
   };
 
-  // Domain yang otomatis di-disable demi keamanan
+  // Keywords that auto-disable the companion for safety
   WCC.SENSITIVE_HINTS = [
     "login",
     "signin",
@@ -47,7 +48,7 @@
     "password",
   ];
 
-  // Skor semantik per tipe target
+  // Semantic score per target type
   WCC.SEMANTIC_SCORE = {
     H1: 100,
     H2: 90,
@@ -63,7 +64,7 @@
     INPUT: 10,
   };
 
-  // Pemetaan tipe target -> action kontekstual
+  // Target type -> contextual action
   WCC.ACTION_BY_TYPE = {
     H1: "read",
     H2: "read",
@@ -79,7 +80,7 @@
     INPUT: "look",
   };
 
-  // Durasi perilaku (ms) per level aktivitas
+  // Behavior durations (ms) per activity level
   WCC.ACTIVITY_PROFILES = {
     low: { idleMin: 20000, idleMax: 45000, actionMin: 4000, actionMax: 8000 },
     medium: {
@@ -91,17 +92,17 @@
     high: { idleMin: 5000, idleMax: 15000, actionMin: 2500, actionMax: 6000 },
   };
 
-  // Tuning gerak & penilaian
+  // Movement & scoring tuning
   WCC.CONFIG = {
-    minTargetSize: 20, // px, elemen lebih kecil diabaikan
-    walkSpeed: 220, // px per detik
-    recentTargetMemory: 6, // berapa target terakhir diingat untuk novelty
+    minTargetSize: 20, // px, smaller elements are ignored
+    walkSpeed: 220, // px per second
+    recentTargetMemory: 6, // how many recent targets to remember for novelty
     recentPenalty: 60,
     randomFactorMax: 40,
-    scrollCancelThreshold: 120, // px, target bergeser > ini saat beraksi -> batalkan
-    floorOffset: 1, // jarak karakter dari "lantai" visual (tepi bawah viewport)
-    topMargin: 6, // jarak minimum kepala karakter dari batas atas / bawah bar
-    maxBarInset: 0.05, // batas aman: bar dianggap maks 40% tinggi viewport
+    scrollCancelThreshold: 120, // px, target moved more than this mid-action -> cancel
+    floorOffset: 1, // gap between the character and the visual floor (viewport bottom)
+    topMargin: 6, // minimum gap between the character's head and the top/bottom bar
+    maxBarInset: 0.05, // safety cap: a bar counts as at most this fraction of viewport height
     zIndex: 2147483000,
   };
 
@@ -111,6 +112,7 @@
     FIND_TARGET: "FIND_TARGET",
     MOVE_TO_TARGET: "MOVE_TO_TARGET",
     PERFORM_ACTION: "PERFORM_ACTION",
+    WRITE: "WRITE",
     SLEEP: "SLEEP",
   };
 

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="id">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -14,7 +14,7 @@
 
     <main>
       <label class="row">
-        <span>Aktif</span>
+        <span>Enabled</span>
         <input type="checkbox" id="enabled" />
       </label>
 
@@ -26,7 +26,7 @@
       </label>
 
       <label class="row sub">
-        <span>Khusus tab ini</span>
+        <span>This tab only</span>
         <input type="checkbox" id="perTab" />
       </label>
 
@@ -40,11 +40,12 @@
       </label>
 
       <fieldset class="group">
-        <legend>Reaksi halaman</legend>
+        <legend>Page reactions</legend>
         <label class="check"><input type="checkbox" id="readHeadings" /> Read headings</label>
         <label class="check"><input type="checkbox" id="lookAtImages" /> Look at images</label>
         <label class="check"><input type="checkbox" id="sitOnElements" /> Sit on elements</label>
         <label class="check"><input type="checkbox" id="sleep" /> Sleep</label>
+        <label class="check"><input type="checkbox" id="reactToInput" /> Take notes while typing</label>
       </fieldset>
 
       <label class="row">
@@ -56,14 +57,21 @@
         <div class="site-host" id="site-host">—</div>
         <select id="site-rule">
           <option value="default">Default (auto)</option>
-          <option value="on">Selalu aktif di sini</option>
-          <option value="off">Nonaktifkan di sini</option>
+          <option value="on">Always on here</option>
+          <option value="off">Disable here</option>
         </select>
       </div>
 
+      <fieldset class="group">
+        <legend>Auto-disable (keywords)</legend>
+        <p class="hint">The companion hides when the URL contains any of these
+          words. One per line. Leave empty for no restriction.</p>
+        <textarea id="sensitiveHints" rows="4" spellcheck="false"></textarea>
+      </fieldset>
+
       <div class="runstate">
         <span class="dot" id="state-dot"></span>
-        <span id="state-text">Memeriksa…</span>
+        <span id="state-text">Checking…</span>
       </div>
       <button id="toggle" class="btn primary" disabled>…</button>
     </main>

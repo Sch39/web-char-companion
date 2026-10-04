@@ -14,6 +14,7 @@
       this.paused = false;
       this._timer = null;
       this._activeTarget = null;
+      this._focusEl = null; // input element currently being reacted to
     }
 
     start() {
@@ -25,6 +26,7 @@
 
     pause() {
       this.paused = true;
+      this._focusEl = null;
       this._clearTimer();
       this.move.cancel();
       this.r.play("idle");
@@ -40,6 +42,7 @@
 
     stop() {
       this.running = false;
+      this._focusEl = null;
       this._clearTimer();
       this.move.cancel();
     }
@@ -64,7 +67,7 @@
       if (!this.running || this.paused) return;
       const settings = this.getSettings();
 
-      // Peluang tidur bila diaktifkan
+      // chance to sleep, if enabled
       if (settings.behaviors?.sleep && Math.random() < this._sleepChance()) {
         return this._doSleep();
       }
@@ -91,7 +94,7 @@
 
     async _perform(action, target) {
       this.state = WCC.STATE.PERFORM_ACTION;
-      this.r.play(action); // renderer fallback ke 'idle' bila sheet belum ada
+      this.r.play(action); // renderer falls back to 'idle' if the sheet is missing
       const p = this._profile();
       const dur = WCC.rand(p.actionMin, p.actionMax);
       WCC.log("perform", action, "on", target.type, `${Math.round(dur)}ms`);
@@ -112,7 +115,41 @@
       return s.activity === "low" ? 0.18 : s.activity === "high" ? 0.05 : 0.1;
     }
 
-    /** Dipanggil interaction.js saat scroll besar membatalkan aksi. */
+    /**
+     * React when the user focuses an input/textarea: stop the routine, walk
+     * over to the field, then play the writing animation. The character stays
+     * there while that field keeps focus (no new target is scheduled). No typed
+     * content is read — this is purely a reaction to the focus event.
+     */
+    onInputFocus(el) {
+      if (!this.running || this.paused) return;
+      if (this.getSettings().behaviors?.reactToInput === false) return;
+      this._focusEl = el;
+      this._clearTimer();
+      this.move.cancel();
+      this._runFocus(el);
+    }
+
+    async _runFocus(el) {
+      const anchor = this.move.anchorFor("write", el.getBoundingClientRect());
+      this.state = WCC.STATE.MOVE_TO_TARGET;
+      const res = await this.move.walkTo(anchor.x, anchor.y);
+      if (res === "cancelled" || this._focusEl !== el || this.paused) return;
+      this.state = WCC.STATE.WRITE;
+      this.r.play("write"); // falls back to idle until a 'write' sheet exists
+      WCC.log("reaction: writing at", el.tagName.toLowerCase());
+    }
+
+    onInputBlur(el) {
+      if (this._focusEl !== el) return;
+      this._focusEl = null;
+      if (!this.running || this.paused) return;
+      this.state = WCC.STATE.IDLE;
+      this.r.play("idle");
+      this._scheduleIdle(1500);
+    }
+
+    /** Called by interaction.js when a large scroll should cancel the action. */
     onDisrupt() {
       if (this.state === WCC.STATE.MOVE_TO_TARGET) {
         this.move.cancel();

@@ -15,6 +15,7 @@ const DEFAULT_SETTINGS = {
     lookAtImages: true,
     sitOnElements: true,
     sleep: true,
+    reactToInput: true,
   },
 };
 
@@ -29,9 +30,9 @@ chrome.runtime.onInstalled.addListener(async () => {
   }
 });
 
-// Karakter khusus tab hidup di storage.session (hilang saat browser ditutup).
-// Content script tidak bisa akses storage.session langsung, jadi lewat sini —
-// kita pakai sender.tab.id untuk tahu tab mana yang bertanya.
+// Per-tab characters live in storage.session (cleared when the browser closes).
+// Content scripts can't access storage.session directly, so they go through
+// here — we use sender.tab.id to know which tab is asking.
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg?.type === "WCC_RESOLVE_CHARACTER") {
     const tabId = sender.tab?.id;
@@ -43,7 +44,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 });
 
-// Buang override saat tab ditutup agar tidak menumpuk.
+// Drop the override when a tab closes so the map doesn't pile up.
 chrome.tabs.onRemoved.addListener(async (tabId) => {
   const data = await chrome.storage.session.get(STORAGE_KEYS.TAB_CHARS);
   const map = data[STORAGE_KEYS.TAB_CHARS] || {};

@@ -1,9 +1,9 @@
 /**
  * DOM Scanner
  *
- * Men-scan elemen yang terlihat di viewport dan menghasilkan daftar kandidat
- * target. Defensif terhadap elemen tersembunyi / terlalu kecil / milik
- * extension sendiri. Scan di-throttle & event-driven
+ * Scans elements visible in the viewport and produces a list of candidate
+ * targets. Defensive against hidden / too-small elements and the extension's
+ * own nodes. Scanning is throttled & event-driven.
  */
 (() => {
   "use strict";
@@ -11,7 +11,7 @@
 
   const SELECTOR = "h1,h2,h3,p,img,video,button,a,input,code,pre,article";
 
-  // Selector kandidat bar tetap (header/nav/footer) di tepi viewport.
+  // Candidate selectors for fixed bars (header/nav/footer) at viewport edges.
   const BAR_SELECTOR = [
     "header",
     "nav",
@@ -33,7 +33,7 @@
   class DomScanner {
     constructor() {
       this.targets = [];
-      this.onInsets = null; // callback({top, bottom}) saat bar terdeteksi
+      this.onInsets = null; // callback({top, bottom}) when bars are detected
       this._throttled = this._throttle(() => this.scan(), 250);
     }
 
@@ -78,9 +78,9 @@
     }
 
     /**
-     * Deteksi bar fixed/sticky yang menempel di tepi atas / bawah viewport,
-     * agar karakter bisa berhenti sebelum tertutup bar (mis. header situs).
-     * Mengembalikan tebal area terhalang: { top, bottom } dalam px.
+     * Detect fixed/sticky bars pinned to the top/bottom viewport edges, so the
+     * character can stop before being covered by one (e.g. a site header).
+     * Returns the blocked thickness: { top, bottom } in px.
      */
     detectInsets() {
       const vw = window.innerWidth;
@@ -95,8 +95,8 @@
         if (cs.display === "none" || cs.visibility === "hidden") continue;
         if (parseFloat(cs.opacity) < 0.1) continue;
         const r = el.getBoundingClientRect();
-        if (r.width < vw * 0.5) continue; // bukan bar selebar halaman
-        if (r.height <= 0 || r.height > cap) continue; // terlalu tipis/tebal
+        if (r.width < vw * 0.5) continue; // not a page-wide bar
+        if (r.height <= 0 || r.height > cap) continue; // too thin/thick
         if (r.top <= 4 && r.bottom > top) top = Math.min(r.bottom, cap);
         if (r.bottom >= vh - 4 && vh - r.top > bottom)
           bottom = Math.min(vh - r.top, cap);
@@ -117,7 +117,7 @@
     _isVisible(el, rect, vw, vh) {
       const min = WCC.CONFIG.minTargetSize;
       if (rect.width < min || rect.height < min) return false;
-      // dalam viewport
+      // inside the viewport
       if (rect.bottom <= 0 || rect.top >= vh) return false;
       if (rect.right <= 0 || rect.left >= vw) return false;
       const cs = getComputedStyle(el);

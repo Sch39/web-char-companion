@@ -64,6 +64,19 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent);
 }
 .group legend { color: var(--muted); padding: 0 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
 .check { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+.hint { margin: 2px 0 6px; font-size: 11px; color: var(--muted); line-height: 1.4; }
+textarea {
+  width: 100%;
+  resize: vertical;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font: 12px/1.4 "Consolas", ui-monospace, monospace;
+  box-sizing: border-box;
+}
+textarea:focus { outline: none; border-color: var(--accent); }
 
 .site {
   margin-top: 10px;
