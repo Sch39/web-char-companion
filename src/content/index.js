@@ -40,6 +40,19 @@
     return !isSensitivePage();
   }
 
+  // Tab ini boleh punya karakter sendiri (disimpan per-tab di background).
+  // Kalau tidak ada, pakai karakter global.
+  async function resolveCharacter(globalChar) {
+    try {
+      const res = await chrome.runtime.sendMessage({
+        type: "WCC_RESOLVE_CHARACTER",
+      });
+      return res?.character || globalChar || "hutao";
+    } catch {
+      return globalChar || "hutao";
+    }
+  }
+
   async function boot() {
     const { settings, siteRules } = await loadStorage();
     app.settings = settings;
@@ -49,9 +62,10 @@
       return;
     }
 
+    const character = await resolveCharacter(settings.character);
     const renderer = new WCC.Renderer();
     try {
-      await renderer.init(settings.character || "hutao");
+      await renderer.init(character);
     } catch (e) {
       console.error("[WCC] gagal init renderer:", e);
       return;
@@ -129,6 +143,9 @@
         teardown();
         boot();
         break;
+      case "WCC_GET_STATE":
+        sendResponse({ active: !!m, paused: m ? !!m.behavior.paused : false });
+        return true;
       case "WCC_PING":
         sendResponse({ active: !!m });
         return true;

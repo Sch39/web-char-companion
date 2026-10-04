@@ -8,7 +8,7 @@
   </head>
   <body>
     <header class="wcc-header">
-      <div class="wcc-logo"></div>
+      <img class="wcc-logo" src="../../icons/icon-32.png" alt="" />
       <h1>Companion</h1>
     </header>
 
@@ -23,6 +23,11 @@
         <select id="character">
           <option value="hutao">Hu Tao</option>
         </select>
+      </label>
+
+      <label class="row sub">
+        <span>Khusus tab ini</span>
+        <input type="checkbox" id="perTab" />
       </label>
 
       <label class="row">
@@ -43,11 +48,6 @@
       </fieldset>
 
       <label class="row">
-        <span>Sound</span>
-        <input type="checkbox" id="sound" />
-      </label>
-
-      <label class="row">
         <span>Reduce motion</span>
         <input type="checkbox" id="reduceMotion" />
       </label>
@@ -61,10 +61,11 @@
         </select>
       </div>
 
-      <div class="actions">
-        <button id="pause" class="btn">Pause</button>
-        <button id="resume" class="btn primary">Resume</button>
+      <div class="runstate">
+        <span class="dot" id="state-dot"></span>
+        <span id="state-text">Memeriksa…</span>
       </div>
+      <button id="toggle" class="btn primary" disabled>…</button>
     </main>
 
     <script src="popup.js"></script>

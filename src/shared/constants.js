@@ -23,7 +23,6 @@
     enabled: true,
     character: "hutao",
     activity: "medium", // low | medium | high
-    sound: false,
     reduceMotion: false,
     behaviors: {
       reactToPage: true,

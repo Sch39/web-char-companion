@@ -24,12 +24,13 @@ body {
   align-items: center;
   gap: 8px;
   padding: 12px 14px;
-  background: linear-gradient(135deg, var(--accent), #7a2626);
+  background: linear-gradient(135deg, #3a2226, #1c1517);
+  border-bottom: 1px solid var(--border);
 }
 .wcc-header h1 { margin: 0; font-size: 15px; font-weight: 600; }
 .wcc-logo {
-  width: 18px; height: 18px; border-radius: 50%;
-  background: var(--accent-2);
+  width: 20px; height: 20px; border-radius: 5px;
+  object-fit: cover;
   box-shadow: 0 0 0 2px rgba(255,255,255,.25);
 }
 
@@ -73,10 +74,33 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent);
 .site-host { font-size: 11px; color: var(--muted); margin-bottom: 6px; word-break: break-all; }
 .site select { width: 100%; }
 
-.actions { display: flex; gap: 8px; margin-top: 12px; }
+.row.sub {
+  padding-top: 2px;
+  border-bottom: 1px solid var(--border);
+}
+.row.sub span { font-size: 12px; color: var(--muted); }
+
+.runstate {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--muted);
+  flex: none;
+}
+.dot.active { background: #4caf50; }
+.dot.paused { background: var(--accent-2); }
+.dot.off { background: #6b5b5e; }
+
 .btn {
-  flex: 1;
-  padding: 8px;
+  width: 100%;
+  padding: 9px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--panel);
@@ -84,6 +108,7 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent);
   cursor: pointer;
   font-size: 13px;
 }
-.btn:hover { border-color: var(--accent); }
+.btn:hover:not(:disabled) { border-color: var(--accent); }
 .btn.primary { background: var(--accent); border-color: var(--accent); }
-.btn.primary:hover { background: #c94747; }
+.btn.primary:hover:not(:disabled) { background: #c94747; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
