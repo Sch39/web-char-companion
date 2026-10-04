@@ -4,6 +4,10 @@
  * Reads settings + site rules, decides whether the companion may appear, then
  * wires up Renderer + Scanner + Selector + Movement + Behavior + Interaction.
  * Listens for popup messages to pause/hide/reload-settings.
+ *
+ * Also re-evaluates on in-page (SPA) navigation: many sites change the URL via
+ * history.pushState without reloading the document, so the companion must
+ * re-decide enabled/disabled instead of staying stuck from the first page.
  */
 (async () => {
   "use strict";
@@ -12,6 +16,8 @@
   window.__WCC_BOOTED = true;
 
   const app = { settings: null, modules: null };
+  let bootSeq = 0; // guards against overlapping async boots
+  let currentHref = location.href;
 
   const getSettings = () => app.settings;
 
@@ -57,7 +63,9 @@
   }
 
   async function boot() {
+    const seq = ++bootSeq;
     const { settings, siteRules } = await loadStorage();
+    if (seq !== bootSeq) return; // superseded by a newer boot
     app.settings = settings;
 
     if (!settings.enabled || !siteAllowed(siteRules)) {
@@ -66,11 +74,17 @@
     }
 
     const character = await resolveCharacter(settings.character);
+    if (seq !== bootSeq) return;
+
     const renderer = new WCC.Renderer();
     try {
       await renderer.init(character);
     } catch (e) {
       console.error("[WCC] renderer init failed:", e);
+      return;
+    }
+    if (seq !== bootSeq) {
+      renderer.destroy(); // navigation happened during init; discard this one
       return;
     }
 
@@ -123,6 +137,29 @@
     app.modules = null;
   }
 
+  // Rebuild from scratch (re-reads settings & re-checks the current URL).
+  function reevaluate() {
+    teardown();
+    boot();
+  }
+
+  // --- SPA / in-page navigation -------------------------------------------
+  // pushState happens in the page's own JS world, which this isolated content
+  // script can't hook, so a lightweight href poll backs up the real events.
+  function onLocationChange() {
+    if (location.href === currentHref) return;
+    currentHref = location.href;
+    WCC.log("navigation ->", location.href);
+    reevaluate();
+  }
+
+  window.addEventListener("popstate", onLocationChange);
+  window.addEventListener("hashchange", onLocationChange);
+  window.addEventListener("pageshow", (e) => {
+    if (e.persisted) reevaluate(); // restored from bfcache; content didn't re-run
+  });
+  setInterval(onLocationChange, 1000);
+
   // Messages from the popup / service worker
   chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     const m = app.modules;
@@ -143,8 +180,7 @@
         break;
       case "WCC_SETTINGS_CHANGED":
         // full reload so enabled/character/site-rule changes take effect
-        teardown();
-        boot();
+        reevaluate();
         break;
       case "WCC_GET_STATE":
         sendResponse({ active: !!m, paused: m ? !!m.behavior.paused : false });
