@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Web Chibi Companion</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="wcc-header">
+      <div class="wcc-logo"></div>
+      <h1>Companion</h1>
+    </header>
+
+    <main>
+      <label class="row">
+        <span>Aktif</span>
+        <input type="checkbox" id="enabled" />
+      </label>
+
+      <label class="row">
+        <span>Character</span>
+        <select id="character">
+          <option value="hutao">Hu Tao</option>
+        </select>
+      </label>
+
+      <label class="row">
+        <span>Activity</span>
+        <select id="activity">
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+      </label>
+
+      <fieldset class="group">
+        <legend>Reaksi halaman</legend>
+        <label class="check"><input type="checkbox" id="readHeadings" /> Read headings</label>
+        <label class="check"><input type="checkbox" id="lookAtImages" /> Look at images</label>
+        <label class="check"><input type="checkbox" id="sitOnElements" /> Sit on elements</label>
+        <label class="check"><input type="checkbox" id="sleep" /> Sleep</label>
+      </fieldset>
+
+      <label class="row">
+        <span>Sound</span>
+        <input type="checkbox" id="sound" />
+      </label>
+
+      <label class="row">
+        <span>Reduce motion</span>
+        <input type="checkbox" id="reduceMotion" />
+      </label>
+
+      <div class="site">
+        <div class="site-host" id="site-host">—</div>
+        <select id="site-rule">
+          <option value="default">Default (auto)</option>
+          <option value="on">Selalu aktif di sini</option>
+          <option value="off">Nonaktifkan di sini</option>
+        </select>
+      </div>
+
+      <div class="actions">
+        <button id="pause" class="btn">Pause</button>
+        <button id="resume" class="btn primary">Resume</button>
+      </div>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

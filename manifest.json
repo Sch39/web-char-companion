@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "name": "Web Chibi Companion",
+  "version": "0.1.0",
+  "description": "Karakter chibi virtual companion yang hidup di atas halaman web dan berinteraksi secara kontekstual dengan DOM.",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_title": "Web Chibi Companion",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "run_at": "document_idle",
+      "js": [
+        "src/shared/constants.js",
+        "src/content/renderer.js",
+        "src/content/dom-scanner.js",
+        "src/content/target-selector.js",
+        "src/content/movement-engine.js",
+        "src/content/behavior-engine.js",
+        "src/content/interaction.js",
+        "src/content/index.js"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/chars/*/*.png", "assets/chars/*/animation.json"],
+      "matches": ["http://*/*", "https://*/*"]
+    }
+  ]
+}
