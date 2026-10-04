@@ -21,7 +21,7 @@
   // Default settings
   WCC.DEFAULT_SETTINGS = {
     enabled: true,
-    character: "hutao",
+    character: "companion",
     activity: "medium", // low | medium | high
     reduceMotion: false,
     behaviors: {

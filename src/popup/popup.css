@@ -125,3 +125,18 @@ textarea:focus { outline: none; border-color: var(--accent); }
 .btn.primary { background: var(--accent); border-color: var(--accent); }
 .btn.primary:hover:not(:disabled) { background: #c94747; }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.link {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 4px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.link:hover { color: var(--text); }

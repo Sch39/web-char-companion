@@ -1,4 +1,5 @@
 {
+  "$schema": "../animation.schema.json",
   "id": "hutao",
   "displayName": "Hu Tao",
 
@@ -17,14 +18,31 @@
 
   "animations": {
     "idle": { "sheet": "idle.png", "fps": 10, "loop": true },
-    "walk": { "sheet": "walk.png", "fps": 14, "loop": true }
+    "walk": {
+      "sheet": "walk.png",
+      "fps": 14,
+      "loop": true,
+      "scale": 0.89,
+      "offsetX": 0,
+      "offsetY": -9.5
+    },
+    "read": {
+      "sheet": "read.png",
+      "columns": 4,
+      "rows": 2,
+      "frames": 8,
+      "fps": 8,
+      "loop": true,
+      "scale": 0.8,
+      "offsetY": -14.5
+    }
   },
 
   "//actionAnimations": "Maps action -> animation name. Actions without their own sheet point to 'idle' as a fallback.",
   "actionAnimations": {
     "idle": "idle",
     "walk": "walk",
-    "read": "idle",
+    "read": "read",
     "look": "idle",
     "sit": "idle",
     "watch": "idle",

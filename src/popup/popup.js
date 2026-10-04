@@ -6,7 +6,7 @@ const STORAGE_KEYS = {
 
 const DEFAULT_SETTINGS = {
   enabled: true,
-  character: "hutao",
+  character: "companion",
   activity: "medium",
   reduceMotion: false,
   behaviors: {
@@ -59,6 +59,27 @@ async function getTabChars() {
   return data[STORAGE_KEYS.TAB_CHARS] || {};
 }
 
+async function getCustomChars() {
+  const data = await chrome.storage.local.get("wcc.customChars");
+  return data["wcc.customChars"] || {};
+}
+
+function populateCharacters(customs, selectedId) {
+  const sel = $("character");
+  sel.innerHTML = "";
+  const add = (id, name) => {
+    const o = document.createElement("option");
+    o.value = id;
+    o.textContent = name;
+    sel.appendChild(o);
+  };
+  for (const b of window.WCC_BUILTINS || []) add(b.id, b.name);
+  for (const [id, c] of Object.entries(customs)) {
+    add(id, `${c.displayName || c.manifest?.displayName || id} (imported)`);
+  }
+  sel.value = selectedId;
+}
+
 async function setTabChar(id, char) {
   const map = await getTabChars();
   if (char == null) delete map[id];
@@ -106,6 +127,7 @@ async function load() {
 
   const tabChars = await getTabChars();
   const override = activeTabId != null ? tabChars[activeTabId] : undefined;
+  const customs = await getCustomChars();
 
   $("enabled").checked = settings.enabled;
   $("activity").value = settings.activity;
@@ -122,7 +144,7 @@ async function load() {
   $("sensitiveHints").value = hints.join("\n");
 
   $("perTab").checked = !!override;
-  $("character").value = override || globalChar;
+  populateCharacters(customs, override || globalChar);
 
   $("site-host").textContent = currentHost || "this page";
   $("site-rule").value =
@@ -253,6 +275,7 @@ function bind() {
   $("perTab").addEventListener("change", onPerTabChange);
   $("site-rule").addEventListener("change", (e) => saveSiteRule(e.target.value));
   $("toggle").addEventListener("click", onToggle);
+  $("manage").addEventListener("click", () => chrome.runtime.openOptionsPage());
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

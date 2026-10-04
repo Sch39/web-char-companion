@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Web Chibi Companion — Characters</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <header class="hd">
+      <img class="logo" src="../../icons/icon-32.png" alt="" />
+      <h1>Characters</h1>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>Import a character</h2>
+        <p class="hint">
+          Pick an <code>animation.json</code> and all the sprite sheet PNGs it
+          references. The character is stored in your browser only.
+        </p>
+
+        <label class="field">
+          <span>Display name (optional)</span>
+          <input type="text" id="displayName" placeholder="e.g. My Cat" />
+        </label>
+
+        <label class="field">
+          <span>animation.json</span>
+          <input type="file" id="manifestFile" accept=".json,application/json" />
+        </label>
+
+        <label class="field">
+          <span>Sprite sheets (PNG, select all)</span>
+          <input type="file" id="sheetFiles" accept="image/png" multiple />
+        </label>
+
+        <button id="import" class="btn primary">Import</button>
+        <p id="status" class="status" role="status"></p>
+      </section>
+
+      <section class="card">
+        <h2>Imported characters</h2>
+        <ul id="list" class="list"></ul>
+        <p class="hint" id="builtins"></p>
+      </section>
+
+      <section class="card">
+        <h2>Animation preview</h2>
+        <p class="hint">
+          Tune a character's per-animation scale and offset, and watch for a
+          baseline jump when switching between two animations.
+        </p>
+        <button id="openPreview" class="btn">Open animation preview</button>
+      </section>
+    </main>
+
+    <script src="../shared/builtin-characters.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>

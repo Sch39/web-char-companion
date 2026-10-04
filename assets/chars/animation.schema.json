@@ -1,0 +1,173 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/sch39/web-char-companion/animation.schema.json",
+  "title": "Character animation manifest",
+  "description": "Describes a character's sprite sheets and how behavior actions map to them.",
+  "type": "object",
+  "required": ["id", "animations"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Path to this JSON schema (enables editor autocomplete)."
+    },
+    "id": {
+      "type": "string",
+      "description": "Folder-safe character id. Must match the assets/chars/<id>/ folder name.",
+      "pattern": "^[a-z0-9_-]+$"
+    },
+    "displayName": {
+      "type": "string",
+      "description": "Human-readable name shown in the UI."
+    },
+    "sprite": {
+      "$ref": "#/$defs/grid",
+      "description": "Default frame grid applied to every animation. Each animation may override any of these fields."
+    },
+    "renderScale": {
+      "type": "number",
+      "description": "On-screen size relative to the frame size. 0.5 = half the frame size.",
+      "exclusiveMinimum": 0,
+      "maximum": 4
+    },
+    "defaultFacing": {
+      "enum": ["left", "right"],
+      "description": "Direction the sheets are drawn facing. The renderer mirrors frames automatically for the opposite direction."
+    },
+    "animations": {
+      "type": "object",
+      "description": "Named animations. The key is the animation name referenced by actionAnimations.",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/animation" }
+    },
+    "actionAnimations": {
+      "type": "object",
+      "description": "Maps a behavior action to an animation name in `animations`. Actions without a mapping fall back to 'idle'.",
+      "properties": {
+        "idle": { "$ref": "#/$defs/animationRef" },
+        "walk": { "$ref": "#/$defs/animationRef" },
+        "read": { "$ref": "#/$defs/animationRef" },
+        "look": { "$ref": "#/$defs/animationRef" },
+        "sit": { "$ref": "#/$defs/animationRef" },
+        "watch": { "$ref": "#/$defs/animationRef" },
+        "write": { "$ref": "#/$defs/animationRef" },
+        "sleep": { "$ref": "#/$defs/animationRef" },
+        "happy": { "$ref": "#/$defs/animationRef" },
+        "surprised": { "$ref": "#/$defs/animationRef" },
+        "sleepy": { "$ref": "#/$defs/animationRef" }
+      },
+      "additionalProperties": { "$ref": "#/$defs/animationRef" }
+    }
+  },
+  "patternProperties": {
+    "^//": {
+      "type": "string",
+      "description": "Comment field (ignored at runtime)."
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "grid": {
+      "type": "object",
+      "properties": {
+        "frameWidth": {
+          "type": "integer",
+          "description": "Width of a single frame in px.",
+          "minimum": 1
+        },
+        "frameHeight": {
+          "type": "integer",
+          "description": "Height of a single frame in px.",
+          "minimum": 1
+        },
+        "columns": {
+          "type": "integer",
+          "description": "Number of frame columns in the sheet.",
+          "minimum": 1
+        },
+        "rows": {
+          "type": "integer",
+          "description": "Number of frame rows in the sheet.",
+          "minimum": 1
+        },
+        "frames": {
+          "type": "integer",
+          "description": "Total frames actually used (may be fewer than columns x rows).",
+          "minimum": 1
+        },
+        "scale": {
+          "type": "number",
+          "description": "Visual zoom applied on top of renderScale, anchored at the bottom-center. Use this when a sheet draws the character larger/smaller within its cell than other sheets, to avoid a jump/zoom effect when switching animations. 1 = no change.",
+          "exclusiveMinimum": 0,
+          "maximum": 3
+        },
+        "offsetX": {
+          "type": "number",
+          "description": "Horizontal nudge in px, applied after scaling. Use to fix left/right drift introduced by scale."
+        },
+        "offsetY": {
+          "type": "number",
+          "description": "Vertical nudge in px, applied after scaling. Use to realign the baseline (feet) between sheets."
+        }
+      },
+      "additionalProperties": false
+    },
+    "animation": {
+      "type": "object",
+      "required": ["sheet"],
+      "description": "One animation. Inherits the top-level `sprite` grid; override any field when this sheet differs.",
+      "properties": {
+        "sheet": {
+          "type": "string",
+          "description": "Sprite sheet file name, relative to the character folder.",
+          "pattern": "\\.(png|webp|gif)$"
+        },
+        "frameWidth": { "type": "integer", "minimum": 1 },
+        "frameHeight": { "type": "integer", "minimum": 1 },
+        "columns": {
+          "type": "integer",
+          "description": "Frame columns in this sheet (overrides sprite.columns).",
+          "minimum": 1
+        },
+        "rows": {
+          "type": "integer",
+          "description": "Frame rows in this sheet (overrides sprite.rows).",
+          "minimum": 1
+        },
+        "frames": {
+          "type": "integer",
+          "description": "Frames used in this sheet (overrides sprite.frames).",
+          "minimum": 1
+        },
+        "fps": {
+          "type": "number",
+          "description": "Playback speed in frames per second.",
+          "exclusiveMinimum": 0,
+          "maximum": 60
+        },
+        "loop": {
+          "type": "boolean",
+          "description": "Whether the animation repeats. false holds on the last frame."
+        },
+        "scale": {
+          "type": "number",
+          "description": "Visual zoom applied on top of renderScale, anchored at the bottom-center (overrides sprite.scale). Use this when this sheet draws the character larger/smaller within its cell than other sheets, to avoid a jump/zoom effect when switching animations. 1 = no change.",
+          "exclusiveMinimum": 0,
+          "maximum": 3
+        },
+        "offsetX": {
+          "type": "number",
+          "description": "Horizontal nudge in px, applied after scaling (overrides sprite.offsetX)."
+        },
+        "offsetY": {
+          "type": "number",
+          "description": "Vertical nudge in px, applied after scaling (overrides sprite.offsetY). Use to realign the baseline (feet) between sheets."
+        }
+      },
+      "additionalProperties": false
+    },
+    "animationRef": {
+      "type": "string",
+      "description": "Name of an animation defined in `animations`."
+    }
+  }
+}

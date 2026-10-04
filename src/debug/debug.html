@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Web Chibi Companion — Animation Preview</title>
+    <link rel="stylesheet" href="debug.css" />
+  </head>
+  <body>
+    <header class="hd">
+      <img class="logo" src="../../icons/icon-32.png" alt="" />
+      <h1>Animation Preview</h1>
+    </header>
+
+    <main>
+      <section class="card row-wrap">
+        <label class="field inline">
+          <span>Character</span>
+          <select id="charSelect"></select>
+        </label>
+        <button id="reload" class="btn small">Reload</button>
+      </section>
+
+      <section class="card">
+        <div id="stage" class="stage">
+          <div class="guide-h"></div>
+          <div class="guide-v"></div>
+        </div>
+
+        <div class="stage-controls">
+          <label class="field inline">
+            <span>Show</span>
+            <select id="showWhich">
+              <option value="ref">Reference</option>
+              <option value="cmp">Compare</option>
+            </select>
+          </label>
+
+          <label class="field inline">
+            <input type="checkbox" id="autoFlip" />
+            <span>Auto-flip every</span>
+            <input type="number" id="flipMs" value="700" min="100" step="100" />
+            <span>ms</span>
+          </label>
+
+          <label class="field inline">
+            <input type="checkbox" id="freeze" />
+            <span>Freeze frame</span>
+            <input type="range" id="frameSlider" min="0" max="0" value="0" step="1" disabled />
+            <span id="frameLabel">0</span>
+          </label>
+        </div>
+
+        <p class="hint">
+          The horizontal line marks the shared ground anchor used by the
+          character's movement code. Flip between Reference and Compare — if
+          the feet shift against that line, tune Compare below until the flip
+          holds steady.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Animations</h2>
+        <label class="field inline">
+          <span>Reference</span>
+          <select id="refAnim"></select>
+        </label>
+        <label class="field inline">
+          <span>Compare</span>
+          <select id="cmpAnim"></select>
+        </label>
+      </section>
+
+      <section class="card">
+        <h2>Tune "Compare"</h2>
+        <p class="hint" id="tuneHint"></p>
+
+        <label class="tune">
+          <span>scale</span>
+          <input type="range" id="scaleRange" min="0.3" max="1.5" step="0.01" />
+          <input type="number" id="scaleNum" min="0.3" max="1.5" step="0.01" />
+        </label>
+        <label class="tune">
+          <span>offsetX</span>
+          <input type="range" id="offsetXRange" min="-60" max="60" step="0.5" />
+          <input type="number" id="offsetXNum" min="-60" max="60" step="0.5" />
+        </label>
+        <label class="tune">
+          <span>offsetY</span>
+          <input type="range" id="offsetYRange" min="-60" max="60" step="0.5" />
+          <input type="number" id="offsetYNum" min="-60" max="60" step="0.5" />
+        </label>
+
+        <button id="copy" class="btn primary">Copy JSON</button>
+        <p id="status" class="status" role="status"></p>
+      </section>
+    </main>
+
+    <script src="../shared/constants.js"></script>
+    <script src="../shared/character-loader.js"></script>
+    <script src="../shared/builtin-characters.js"></script>
+    <script src="../content/renderer.js"></script>
+    <script src="debug.js"></script>
+  </body>
+</html>

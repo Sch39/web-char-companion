@@ -1,0 +1,8 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": ["/assets/chars/*/animation.json"],
+      "url": "./assets/chars/animation.schema.json"
+    }
+  ]
+}

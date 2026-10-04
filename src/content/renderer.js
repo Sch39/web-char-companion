@@ -28,8 +28,9 @@
       this.insets = { top: 0, bottom: 0 }; // area blocked by fixed/sticky bars
     }
 
-    async init(characterId) {
-      this.anim = await this._loadManifest(characterId);
+    /** @param {{manifest: object, sheets: Record<string,string>}} data */
+    async init(data) {
+      this.anim = data.manifest;
       // Resolve config: default grid from the `sprite` block, overridable per
       // animation. defs[name] = the full config the renderer uses.
       const grid = this.anim.sprite || {};
@@ -43,12 +44,14 @@
           frames: 15,
           fps: 8,
           loop: true,
+          scale: 1, // compensates sheets where the art is drawn larger/smaller within the cell
+          offsetX: 0,
+          offsetY: 0,
           ...grid,
           ...def,
         };
-        this.sheetUrls[name] = chrome.runtime.getURL(
-          `assets/chars/${characterId}/${def.sheet}`,
-        );
+        // sheet URL is either a packaged getURL() or an imported data: URL
+        this.sheetUrls[name] = data.sheets[name];
       }
       const scale = this.anim.renderScale || 0.5;
       const base = this.defs.idle || Object.values(this.defs)[0];
@@ -62,15 +65,6 @@
       this._loop = this._loop.bind(this);
       this.rafId = requestAnimationFrame(this._loop);
       WCC.log("renderer ready", this.anim.displayName, this.size);
-    }
-
-    async _loadManifest(characterId) {
-      const url = chrome.runtime.getURL(
-        `assets/chars/${characterId}/animation.json`,
-      );
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`failed to load animation.json (${res.status})`);
-      return res.json();
     }
 
     _buildDom() {
@@ -198,7 +192,12 @@
       this.sprite.style.backgroundPosition = `${px}% ${py}%`;
       // sheet faces `defaultFacing`; flip when heading the other way
       const flip = this.facing !== (this.anim.defaultFacing || "left");
-      this.sprite.style.transform = flip ? "scaleX(-1)" : "scaleX(1)";
+      const s = def.scale || 1;
+      const sx = flip ? -s : s;
+      // transform-origin is center bottom, so scale zooms toward the feet and
+      // offsetX/offsetY nudge the art afterward (e.g. to line up a baseline)
+      this.sprite.style.transform =
+        `translate(${def.offsetX}px, ${def.offsetY}px) scale(${sx}, ${s})`;
     }
 
     _loop(now) {

@@ -56,9 +56,9 @@
       const res = await chrome.runtime.sendMessage({
         type: "WCC_RESOLVE_CHARACTER",
       });
-      return res?.character || globalChar || "hutao";
+      return res?.character || globalChar || "companion";
     } catch {
-      return globalChar || "hutao";
+      return globalChar || "companion";
     }
   }
 
@@ -73,12 +73,26 @@
       return;
     }
 
-    const character = await resolveCharacter(settings.character);
+    const id = await resolveCharacter(settings.character);
+    if (seq !== bootSeq) return;
+
+    let data;
+    try {
+      data = await WCC.loadCharacterData(id);
+    } catch {
+      // selected character missing (e.g. a deleted import) -> use the default
+      try {
+        data = await WCC.loadCharacterData("companion");
+      } catch (e) {
+        console.error("[WCC] no character available:", e);
+        return;
+      }
+    }
     if (seq !== bootSeq) return;
 
     const renderer = new WCC.Renderer();
     try {
-      await renderer.init(character);
+      await renderer.init(data);
     } catch (e) {
       console.error("[WCC] renderer init failed:", e);
       return;

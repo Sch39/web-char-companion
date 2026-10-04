@@ -1,0 +1,31 @@
+{
+  "$schema": "../animation.schema.json",
+  "id": "companion",
+  "displayName": "Companion",
+  "sprite": {
+    "frameWidth": 256,
+    "frameHeight": 256,
+    "columns": 2,
+    "rows": 2,
+    "frames": 4
+  },
+  "renderScale": 0.5,
+  "defaultFacing": "right",
+  "animations": {
+    "idle": { "sheet": "idle.png", "fps": 6, "loop": true },
+    "walk": { "sheet": "walk.png", "fps": 8, "loop": true }
+  },
+  "actionAnimations": {
+    "idle": "idle",
+    "walk": "walk",
+    "read": "idle",
+    "look": "idle",
+    "sit": "idle",
+    "watch": "idle",
+    "write": "idle",
+    "sleep": "idle",
+    "happy": "idle",
+    "surprised": "idle",
+    "sleepy": "idle"
+  }
+}

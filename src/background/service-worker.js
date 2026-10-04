@@ -6,7 +6,7 @@ const STORAGE_KEYS = {
 
 const DEFAULT_SETTINGS = {
   enabled: true,
-  character: "hutao",
+  character: "companion",
   activity: "medium",
   reduceMotion: false,
   behaviors: {

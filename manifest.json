@@ -9,11 +9,15 @@
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
   },
-  "permissions": ["storage", "activeTab", "scripting"],
+  "permissions": ["storage", "unlimitedStorage", "activeTab", "scripting"],
   "host_permissions": ["http://*/*", "https://*/*"],
   "background": {
     "service_worker": "src/background/service-worker.js",
     "type": "module"
+  },
+  "options_ui": {
+    "page": "src/options/options.html",
+    "open_in_tab": true
   },
   "action": {
     "default_popup": "src/popup/popup.html",
@@ -31,6 +35,7 @@
       "run_at": "document_idle",
       "js": [
         "src/shared/constants.js",
+        "src/shared/character-loader.js",
         "src/content/renderer.js",
         "src/content/dom-scanner.js",
         "src/content/target-selector.js",
