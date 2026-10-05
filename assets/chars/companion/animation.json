@@ -19,6 +19,7 @@
   "actionAnimations": {
     "idle": "idle",
     "walk": "walk",
+    "hop": "idle",
     "read": "idle",
     "look": "idle",
     "sit": "idle",

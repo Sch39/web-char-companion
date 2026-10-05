@@ -107,6 +107,7 @@
     maxBarInset: 0.05, // safety cap: a bar counts as at most this fraction of viewport height
     zIndex: 2147483000,
     positionSaveThrottleMs: 400, // how often the current position is persisted per tab while moving
+    steepWalkAngleDeg: 40, // travel angle (from horizontal) above which "hop" replaces "walk"
   };
 
   // State machine

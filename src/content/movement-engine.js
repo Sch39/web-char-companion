@@ -2,8 +2,11 @@
  * Movement Engine
  *
  * Moves the character on a visual plane (it doesn't follow the physical DOM
- * layout). Only the X axis is "walked"; Y snaps to the visual floor or the
- * target position. Returns a Promise that resolves on arrival or cancel.
+ * layout). Position is interpolated straight toward the target on both axes
+ * at once, so travel can be diagonal — the walk cycle is swapped for "hop"
+ * when that diagonal gets steep, since a horizontal stride looks like it's
+ * sliding sideways otherwise. Returns a Promise that resolves on arrival or
+ * cancel.
  */
 (() => {
   "use strict";
@@ -56,7 +59,16 @@
       this.cancel();
       const speed = WCC.CONFIG.walkSpeed;
       const r = this.r;
-      r.play("walk");
+      // The regular walk cycle is a side-view horizontal stride; it reads as
+      // sliding sideways once the travel direction leans steeply up/down
+      // (e.g. heading to a target well above or below the current spot).
+      // Pick "hop" instead whenever the angle from horizontal is steep —
+      // decided once up front, not re-evaluated mid-trip, so the animation
+      // doesn't flicker between the two near the threshold.
+      const angleDeg =
+        (Math.atan2(Math.abs(y - r.pos.y), Math.abs(x - r.pos.x)) * 180) /
+        Math.PI;
+      r.play(angleDeg > WCC.CONFIG.steepWalkAngleDeg ? "hop" : "walk");
       return new Promise((resolve) => {
         let cancelled = false;
         this._cancel = () => {
