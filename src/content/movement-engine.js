@@ -24,9 +24,16 @@
         case "read": // bottom-left of the heading
           raw = { x: rect.left + 24, y: rect.bottom + 4 };
           break;
-        case "sit": // on top of the button/element
-          raw = { x: rect.left + rect.width / 2, y: rect.top };
+        case "sit": {
+          // On top of the button/element. "y: rect.top" places the sprite
+          // box's bottom edge there, not the drawn feet — every animation has
+          // some empty margin below its feet (idle's own gap, which other
+          // sheets are calibrated via scale/offsetY to match). idleFootGap
+          // compensates for that margin so the feet actually touch the edge.
+          const gap = this.r.idleFootGap || 0;
+          raw = { x: rect.left + rect.width / 2, y: rect.top + gap };
           break;
+        }
         case "watch": // below the video
           raw = { x: rect.left + rect.width / 2, y: rect.bottom + 8 };
           break;

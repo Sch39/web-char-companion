@@ -59,6 +59,10 @@
         w: Math.round(base.frameWidth * scale),
         h: Math.round(base.frameHeight * scale),
       };
+      // How far (rendered px) idle's own drawn feet sit above the position
+      // anchor. Movement targets that need literal contact with an element
+      // edge (e.g. "sit") add this back in — see movement-engine.js.
+      this.idleFootGap = this.anim.idleFootGap || 0;
       this._buildDom();
       this.pos.y = window.innerHeight - WCC.CONFIG.floorOffset;
       this.play("idle");

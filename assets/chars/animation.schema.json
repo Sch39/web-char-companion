@@ -33,6 +33,11 @@
       "enum": ["left", "right"],
       "description": "Direction the sheets are drawn facing. The renderer mirrors frames automatically for the opposite direction."
     },
+    "idleFootGap": {
+      "type": "number",
+      "description": "Gap in rendered px between idle's own drawn feet and the position anchor (idle's natural empty margin below its feet). Other animations are calibrated via scale/offsetY to match this same gap so switching between them doesn't visually jump. Behaviors that need literal contact with an element edge (e.g. 'sit') add this value back in when computing where to walk, since the anchor point itself is the sprite box's edge, not the drawn feet. Measure it once from idle's sheet; 0 if idle's feet already sit flush with the cell edge.",
+      "minimum": 0
+    },
     "animations": {
       "type": "object",
       "description": "Named animations. The key is the animation name referenced by actionAnimations.",
