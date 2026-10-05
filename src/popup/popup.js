@@ -6,7 +6,7 @@ const STORAGE_KEYS = {
 
 const DEFAULT_SETTINGS = {
   enabled: true,
-  character: "companion",
+  character: "luna",
   activity: "medium",
   reduceMotion: false,
   behaviors: {
@@ -65,20 +65,20 @@ async function getCustomChars() {
   return data["wcc.customChars"] || {};
 }
 
-function populateCharacters(customs, selectedId) {
+async function populateCharacters(customs, selectedId) {
   const sel = $("character");
   sel.innerHTML = "";
-  const add = (id, name) => {
+  for (const { id, label } of await window.WCC_characterOptions(customs)) {
     const o = document.createElement("option");
     o.value = id;
-    o.textContent = name;
+    o.textContent = label;
     sel.appendChild(o);
-  };
-  for (const b of window.WCC_BUILTINS || []) add(b.id, b.name);
-  for (const [id, c] of Object.entries(customs)) {
-    add(id, `${c.displayName || c.manifest?.displayName || id} (imported)`);
   }
   sel.value = selectedId;
+  // the saved character may no longer exist (assets moved, import deleted) —
+  // fall back to whatever is actually available so the picker can't show a
+  // selection the loader won't honor
+  if (!sel.value && sel.options.length) sel.selectedIndex = 0;
 }
 
 async function setTabChar(id, char) {
@@ -146,7 +146,7 @@ async function load() {
   $("sensitiveHints").value = hints.join("\n");
 
   $("perTab").checked = !!override;
-  populateCharacters(customs, override || globalChar);
+  await populateCharacters(customs, override || globalChar);
 
   $("site-host").textContent = currentHost || "this page";
   $("site-rule").value =

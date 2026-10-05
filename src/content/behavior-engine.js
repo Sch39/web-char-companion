@@ -109,7 +109,25 @@
       await this._sleep(dur);
     }
 
+    /**
+     * Sleeping happens in two beats: a short drowsy yawn (`sleepy`) to lead
+     * into it, then the `sleep` loop itself. A character with no `sleepy`
+     * sheet falls back to `idle` for that first beat, which still reads as
+     * settling down before nodding off.
+     */
     _doSleep() {
+      this.state = WCC.STATE.DROWSY;
+      this.r.play("sleepy");
+      const dur = WCC.rand(WCC.CONFIG.drowsyMin, WCC.CONFIG.drowsyMax);
+      WCC.log("drowsy", `${Math.round(dur)}ms`);
+      this._clearTimer();
+      this._timer = setTimeout(() => this._enterSleep(), dur);
+    }
+
+    /** Second beat of _doSleep() — the actual sleep loop. */
+    _enterSleep() {
+      // the drowsy beat is a timer gap, so re-check in case of pause/stop
+      if (!this.running || this.paused) return;
       this.state = WCC.STATE.SLEEP;
       this.r.play("sleep");
       const dur = WCC.rand(8000, 16000);

@@ -1,0 +1,115 @@
+{
+  "$schema": "../animation.schema.json",
+  "id": "luna",
+  "displayName": "Luna",
+
+  "//sprite": "Default cell size. Every sheet here declares its own columns/rows/frames because the grids differ per action.",
+  "sprite": {
+    "frameWidth": 256,
+    "frameHeight": 256
+  },
+
+  "renderScale": 0.5,
+  "defaultFacing": "right",
+
+  "//idleFootGap": "Not measured yet — set this once idle.png's baseline has been checked with the animation preview page, otherwise 'sit' will float above its target.",
+
+  "animations": {
+    "idle": {
+      "sheet": "idle.png",
+      "columns": 4,
+      "rows": 2,
+      "frames": 8,
+      "fps": 10,
+      "loop": true
+    },
+    "walk": {
+      "sheet": "walk.png",
+      "columns": 4,
+      "rows": 2,
+      "frames": 8,
+      "fps": 14,
+      "loop": true
+    },
+    "hop": {
+      "sheet": "hop.png",
+      "columns": 5,
+      "rows": 2,
+      "frames": 10,
+      "fps": 12,
+      "loop": true
+    },
+    "read": {
+      "sheet": "read.png",
+      "columns": 6,
+      "rows": 2,
+      "frames": 12,
+      "fps": 6,
+      "loop": true
+    },
+    "look": {
+      "sheet": "look.png",
+      "columns": 11,
+      "rows": 1,
+      "frames": 11,
+      "fps": 8,
+      "loop": true
+    },
+    "sit": {
+      "sheet": "sit.png",
+      "columns": 9,
+      "rows": 2,
+      "frames": 18,
+      "fps": 6,
+      "loop": true
+    },
+    "watch": {
+      "sheet": "watch.png",
+      "columns": 5,
+      "rows": 3,
+      "frames": 15,
+      "fps": 8,
+      "loop": true
+    },
+    "happy": {
+      "sheet": "happy.png",
+      "columns": 11,
+      "rows": 1,
+      "frames": 11,
+      "fps": 12,
+      "loop": true
+    },
+    "surprised": {
+      "sheet": "surprised.png",
+      "columns": 6,
+      "rows": 2,
+      "frames": 12,
+      "fps": 12,
+      "loop": false
+    },
+    "write": {
+      "sheet": "write.png",
+      "columns": 5,
+      "rows": 2,
+      "frames": 10,
+      "fps": 6,
+      "loop": true
+    },
+    "sleep": {
+      "sheet": "sleep.png",
+      "columns": 5,
+      "rows": 3,
+      "frames": 15,
+      "fps": 7,
+      "loop": true
+    },
+    "watch_film": {
+      "sheet": "watchf.png",
+      "columns": 9,
+      "rows": 2,
+      "frames": 18,
+      "fps": 8,
+      "loop": true
+    }
+  }
+}

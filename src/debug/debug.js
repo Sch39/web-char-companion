@@ -19,21 +19,13 @@ async function getCustomChars() {
 async function populateCharSelect() {
   const sel = $("charSelect");
   sel.innerHTML = "";
-  for (const b of window.WCC_BUILTINS || []) {
-    const o = document.createElement("option");
-    o.value = b.id;
-    o.textContent = b.name;
-    sel.appendChild(o);
-  }
   const customs = await getCustomChars();
-  for (const [id, c] of Object.entries(customs)) {
+  for (const { id, label } of await window.WCC_characterOptions(customs)) {
     const o = document.createElement("option");
     o.value = id;
-    o.textContent = `${c.displayName || id} (imported)`;
+    o.textContent = label;
     sel.appendChild(o);
   }
-  // default to hutao when present — it's the one most likely needing tuning
-  if ([...sel.options].some((o) => o.value === "hutao")) sel.value = "hutao";
 }
 
 function positionStage() {
@@ -214,5 +206,12 @@ window.addEventListener("scroll", positionStage, { passive: true });
 
 (async () => {
   await populateCharSelect();
+  if (!$("charSelect").value) {
+    setStatus(
+      "No characters available — add one under assets/chars/ (and list it in builtin-characters.js), or import one from the Options page.",
+      "err",
+    );
+    return;
+  }
   await loadChar($("charSelect").value);
 })();

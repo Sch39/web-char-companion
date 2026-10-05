@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/sch39/web-char-companion/animation.schema.json",
   "title": "Character animation manifest",
-  "description": "Describes a character's sprite sheets and how behavior actions map to them.",
+  "description": "Describes a character's sprite sheets. Each key under `animations` is an action the behavior code plays by that exact name; hover a key for when it fires.",
   "type": "object",
   "required": ["id", "animations"],
   "properties": {
@@ -40,29 +40,63 @@
     },
     "animations": {
       "type": "object",
-      "description": "Named animations. The key is the animation name referenced by actionAnimations.",
-      "minProperties": 1,
-      "additionalProperties": { "$ref": "#/$defs/animation" }
-    },
-    "actionAnimations": {
-      "type": "object",
-      "description": "Documentation only — not read by the loader. The actual resolution happens in code (behavior-engine.js), which uses the action name directly as the animation name and falls back to 'idle' when there's no matching entry under `animations`. This block exists purely so a human reading the file can see the intended action -> animation mapping at a glance; renaming a key here has no effect on runtime behavior.",
+      "description": "The character's sprite sheets, keyed by animation name. Only the names listed here are ever played by the behavior code — an entry under any other name would never be used, so unknown keys are rejected rather than silently ignored. Every name except `idle` is optional: a missing one falls back to `idle` at runtime.",
+      "required": ["idle"],
       "properties": {
-        "idle": { "$ref": "#/$defs/animationRef" },
-        "walk": { "$ref": "#/$defs/animationRef" },
-        "hop": { "$ref": "#/$defs/animationRef" },
-        "read": { "$ref": "#/$defs/animationRef" },
-        "look": { "$ref": "#/$defs/animationRef" },
-        "sit": { "$ref": "#/$defs/animationRef" },
-        "watch": { "$ref": "#/$defs/animationRef" },
-        "watch_film": { "$ref": "#/$defs/animationRef" },
-        "write": { "$ref": "#/$defs/animationRef" },
-        "sleep": { "$ref": "#/$defs/animationRef" },
-        "happy": { "$ref": "#/$defs/animationRef" },
-        "surprised": { "$ref": "#/$defs/animationRef" },
-        "sleepy": { "$ref": "#/$defs/animationRef" }
+        "idle": {
+          "description": "Resting loop. Plays whenever nothing else is happening, and is the automatic fallback for every other action whose sheet is absent — which is why this one is required.",
+          "allOf": [{ "$ref": "#/$defs/animation" }]
+        },
+        "walk": {
+          "description": "Travel cycle, played while walking toward a target along a mostly-horizontal path, and while the user drags the character.",
+          "allOf": [{ "$ref": "#/$defs/animation" }]
+        },
+        "hop": {
+          "description": "Alternative travel cycle, used instead of `walk` when the path to the target is steeper than CONFIG.steepWalkAngleDeg — a horizontal stride reads as sliding sideways at steep angles.",
+          "allOf": [{ "$ref": "#/$defs/animation" }]
+        },
+        "read": {
+          "description": "Plays on arrival at a heading or text block (H1, H2, H3, P, ARTICLE).",
+          "allOf": [{ "$ref": "#/$defs/animation" }]
+        },
+        "look": {
+          "description": "Plays on arrival at an image, code block or input (IMG, PRE, CODE, INPUT). Also the fallback for any target type with no mapping of its own.",
+          "allOf": [{ "$ref": "#/$defs/animation" }]
+        },
+        "sit": {
+          "description": "Plays on arrival at a button or link (BUTTON, A). This is the action that uses the character's `idleFootGap`, so the feet land flush on the element's top edge.",
+          "allOf": [{ "$ref": "#/$defs/animation" }]
+        },
+        "watch": {
+          "description": "Plays on arrival at a video that is NOT currently playing.",
+          "allOf": [{ "$ref": "#/$defs/animation" }]
+        },
+        "watch_film": {
+          "description": "Plays on arrival at a video that IS currently playing, including one inside an embedded iframe. Only reachable while the \"Watch playing videos\" setting is on.",
+          "allOf": [{ "$ref": "#/$defs/animation" }]
+        },
+        "write": {
+          "description": "Plays after the character walks over to a text field the user just focused. Only reachable while the \"Take notes while typing\" setting is on.",
+          "allOf": [{ "$ref": "#/$defs/animation" }]
+        },
+        "sleepy": {
+          "description": "Drowsy lead-in to `sleep` — a yawn/eye-rub that plays for CONFIG.drowsyMin..drowsyMax ms before the sleep loop starts. Falls back to `idle` for that beat if absent, which still reads as settling down.",
+          "allOf": [{ "$ref": "#/$defs/animation" }]
+        },
+        "sleep": {
+          "description": "The sleep loop itself, entered right after the `sleepy` beat. The whole sequence is randomly triggered, with a chance that depends on the activity level, and only while the \"Sleep\" setting is on.",
+          "allOf": [{ "$ref": "#/$defs/animation" }]
+        },
+        "happy": {
+          "description": "One of the two reactions picked at random when the user clicks the character.",
+          "allOf": [{ "$ref": "#/$defs/animation" }]
+        },
+        "surprised": {
+          "description": "The other reaction picked at random when the user clicks the character.",
+          "allOf": [{ "$ref": "#/$defs/animation" }]
+        }
       },
-      "additionalProperties": { "$ref": "#/$defs/animationRef" }
+      "additionalProperties": false
     }
   },
   "patternProperties": {
@@ -171,10 +205,6 @@
         }
       },
       "additionalProperties": false
-    },
-    "animationRef": {
-      "type": "string",
-      "description": "Name of an animation defined in `animations`."
     }
   }
 }

@@ -7,7 +7,7 @@ const STORAGE_KEYS = {
 
 const DEFAULT_SETTINGS = {
   enabled: true,
-  character: "companion",
+  character: "luna",
   activity: "medium",
   reduceMotion: false,
   behaviors: {

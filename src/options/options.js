@@ -132,8 +132,14 @@ async function renderList() {
     }
   }
 
-  const builtins = (window.WCC_BUILTINS || []).map((b) => b.name).join(", ");
-  $("builtins").textContent = builtins ? `Built-in: ${builtins}` : "";
+  // resolved, not the raw list — a packaged character whose assets were
+  // removed shouldn't be advertised as available
+  const builtins = (await window.WCC_resolveBuiltins())
+    .map((b) => b.name)
+    .join(", ");
+  $("builtins").textContent = builtins
+    ? `Built-in: ${builtins}`
+    : "No built-in characters are available — import one above.";
 }
 
 $("import").addEventListener("click", onImport);

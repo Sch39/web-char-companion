@@ -101,9 +101,9 @@
       const res = await chrome.runtime.sendMessage({
         type: "WCC_RESOLVE_CHARACTER",
       });
-      return res?.character || globalChar || "companion";
+      return res?.character || globalChar || "luna";
     } catch {
-      return globalChar || "companion";
+      return globalChar || "luna";
     }
   }
 
@@ -127,7 +127,7 @@
     } catch {
       // selected character missing (e.g. a deleted import) -> use the default
       try {
-        data = await WCC.loadCharacterData("companion");
+        data = await WCC.loadCharacterData("luna");
       } catch (e) {
         console.error("[WCC] no character available:", e);
         return;

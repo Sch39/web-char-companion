@@ -21,7 +21,7 @@
   // Default settings
   WCC.DEFAULT_SETTINGS = {
     enabled: true,
-    character: "companion",
+    character: "luna",
     activity: "medium", // low | medium | high
     reduceMotion: false,
     behaviors: {
@@ -108,6 +108,8 @@
     zIndex: 2147483000,
     positionSaveThrottleMs: 400, // how often the current position is persisted per tab while moving
     steepWalkAngleDeg: 40, // travel angle (from horizontal) above which "hop" replaces "walk"
+    drowsyMin: 2000, // ms, the yawn/stretch beat that leads into the sleep loop
+    drowsyMax: 4000,
   };
 
   // State machine
@@ -117,6 +119,7 @@
     MOVE_TO_TARGET: "MOVE_TO_TARGET",
     PERFORM_ACTION: "PERFORM_ACTION",
     WRITE: "WRITE",
+    DROWSY: "DROWSY", // the brief yawn that leads into SLEEP
     SLEEP: "SLEEP",
   };
 
