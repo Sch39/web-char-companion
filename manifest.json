@@ -37,6 +37,7 @@
         "src/shared/constants.js",
         "src/shared/character-loader.js",
         "src/content/renderer.js",
+        "src/content/video-watcher.js",
         "src/content/dom-scanner.js",
         "src/content/target-selector.js",
         "src/content/movement-engine.js",
@@ -44,6 +45,12 @@
         "src/content/interaction.js",
         "src/content/index.js"
       ]
+    },
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "all_frames": true,
+      "run_at": "document_idle",
+      "js": ["src/content/video-watcher-frame.js"]
     }
   ],
   "web_accessible_resources": [

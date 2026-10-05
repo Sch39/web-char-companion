@@ -39,6 +39,16 @@
       "scale": 0.8,
       "offsetY": -14.5
     },
+    "watch_film": {
+      "sheet": "read.png",
+      "columns": 4,
+      "rows": 2,
+      "frames": 8,
+      "fps": 8,
+      "loop": true,
+      "scale": 0.8,
+      "offsetY": -14.5
+    },
     "sit": {
       "sheet": "sit.png",
       "columns": 4,
@@ -61,7 +71,7 @@
     }
   },
 
-  "//actionAnimations": "Maps action -> animation name. Actions without their own sheet point to 'idle' as a fallback.",
+  "//actionAnimations": "Documentation only — not read by the loader. Code resolves an action to an animation by using the action name directly as the animation key and falling back to 'idle' if no match exists under `animations`. This block just shows that mapping for humans; editing it has no effect on runtime behavior.",
   "actionAnimations": {
     "idle": "idle",
     "walk": "walk",
@@ -69,6 +79,7 @@
     "look": "idle",
     "sit": "sit",
     "watch": "idle",
+    "watch_film": "idle",
     "write": "write",
     "sleep": "idle",
     "happy": "idle",

@@ -23,8 +23,8 @@
       const vh = window.innerHeight;
       const scored = [];
       for (const c of candidates) {
-        if (!this._allowed(c.type, settings)) continue;
-        const score = this._score(c, vh, fromX);
+        if (!this._allowed(c, settings)) continue;
+        const score = this._score(c, vh, fromX, settings);
         if (score > 0) scored.push({ ...c, score });
       }
       if (!scored.length) return null;
@@ -36,7 +36,7 @@
       return picked;
     }
 
-    _score(c, vh, fromX) {
+    _score(c, vh, fromX, settings) {
       let score = WCC.SEMANTIC_SCORE[c.type] || 0;
 
       // visibility: closer to the viewport center scores higher
@@ -55,6 +55,12 @@
       // penalty when the target is too close to the current position
       if (fromX != null && Math.abs(c.cx - fromX) < 60) score -= 15;
 
+      // a playing video should dominate the pool, but stay weighted (not
+      // an absolute guarantee) so behavior still has some variety
+      if (c.isPlaying && settings.behaviors?.watchFilm !== false) {
+        score += WCC.CONFIG.playingVideoBonus;
+      }
+
       return score;
     }
 
@@ -68,12 +74,19 @@
       return pool[0];
     }
 
-    _allowed(type, settings) {
+    _allowed(c, settings) {
       const b = settings.behaviors || {};
+      const type = c.type;
       if (["H1", "H2", "H3", "P", "ARTICLE"].includes(type))
         return b.readHeadings !== false;
       if (["IMG"].includes(type)) return b.lookAtImages !== false;
       if (["BUTTON", "A"].includes(type)) return b.sitOnElements !== false;
+      // An iframe only ever becomes a candidate because it's playing video —
+      // there's no "plain watch" state for it like there is for <video>, so
+      // disabling the reaction means it shouldn't be a candidate at all.
+      if (type === "VIDEO" && c.isPlaying && c.el?.tagName === "IFRAME") {
+        return b.watchFilm !== false;
+      }
       return true; // video/code etc. are allowed by default
     }
 

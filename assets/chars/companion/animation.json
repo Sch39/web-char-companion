@@ -15,6 +15,7 @@
     "idle": { "sheet": "idle.png", "fps": 6, "loop": true },
     "walk": { "sheet": "walk.png", "fps": 8, "loop": true }
   },
+  "//actionAnimations": "Documentation only — not read by the loader. Code resolves an action to an animation by using the action name directly as the animation key and falling back to 'idle' if no match exists under `animations`. This block just shows that mapping for humans; editing it has no effect on runtime behavior.",
   "actionAnimations": {
     "idle": "idle",
     "walk": "walk",

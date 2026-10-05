@@ -35,6 +35,7 @@
           break;
         }
         case "watch": // below the video
+        case "watch_film": // same spot, for an actively playing video
           raw = { x: rect.left + rect.width / 2, y: rect.bottom + 8 };
           break;
         case "look": // beside the image

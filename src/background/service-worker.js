@@ -16,6 +16,7 @@ const DEFAULT_SETTINGS = {
     sitOnElements: true,
     sleep: true,
     reactToInput: true,
+    watchFilm: true,
   },
 };
 

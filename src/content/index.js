@@ -102,6 +102,7 @@
       return;
     }
 
+    const videoWatcher = new WCC.VideoWatcher();
     const scanner = new WCC.DomScanner();
     // Detected fixed/sticky bars -> constrain the character's movement area.
     scanner.onInsets = (insets) =>
@@ -117,6 +118,7 @@
     });
     const interaction = new WCC.Interaction({ renderer, movement, behavior });
 
+    videoWatcher.start();
     scanner.start();
     interaction.start();
     behavior.start();
@@ -132,6 +134,7 @@
 
     app.modules = {
       renderer,
+      videoWatcher,
       scanner,
       selector,
       movement,
@@ -146,6 +149,7 @@
     if (!m) return;
     m.behavior.stop();
     m.scanner.stop();
+    m.videoWatcher.stop();
     m.interaction.stop();
     m.renderer.destroy();
     app.modules = null;

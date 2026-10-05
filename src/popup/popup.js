@@ -16,6 +16,7 @@ const DEFAULT_SETTINGS = {
     sitOnElements: true,
     sleep: true,
     reactToInput: true,
+    watchFilm: true,
   },
 };
 
@@ -137,6 +138,7 @@ async function load() {
   $("sitOnElements").checked = settings.behaviors.sitOnElements;
   $("sleep").checked = settings.behaviors.sleep;
   $("reactToInput").checked = settings.behaviors.reactToInput !== false;
+  $("watchFilm").checked = settings.behaviors.watchFilm !== false;
 
   const hints = Array.isArray(settings.sensitiveHints)
     ? settings.sensitiveHints
@@ -166,6 +168,7 @@ function collectSettings() {
       sitOnElements: $("sitOnElements").checked,
       sleep: $("sleep").checked,
       reactToInput: $("reactToInput").checked,
+      watchFilm: $("watchFilm").checked,
     },
     sensitiveHints: parseHints($("sensitiveHints").value),
   };
@@ -266,6 +269,7 @@ function bind() {
     "sitOnElements",
     "sleep",
     "reactToInput",
+    "watchFilm",
     "sensitiveHints",
   ];
   for (const id of globalInputs) {

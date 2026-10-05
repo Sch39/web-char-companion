@@ -81,7 +81,15 @@
       // MOVE_TO_TARGET
       this.state = WCC.STATE.MOVE_TO_TARGET;
       this._activeTarget = target;
-      const action = WCC.ACTION_BY_TYPE[target.type] || "look";
+      // A playing video gets its own action (character sits and watches,
+      // overridden over the plain "watch" otherwise used for a static video),
+      // unless the user turned that reaction off.
+      const action =
+        target.type === "VIDEO" &&
+        target.isPlaying &&
+        settings.behaviors?.watchFilm !== false
+          ? "watch_film"
+          : WCC.ACTION_BY_TYPE[target.type] || "look";
       const anchor = this.move.anchorFor(action, target.rect);
       const result = await this.move.walkTo(anchor.x, anchor.y);
       if (result === "cancelled" || !this.running || this.paused) return;

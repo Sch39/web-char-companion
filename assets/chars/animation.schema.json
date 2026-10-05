@@ -46,7 +46,7 @@
     },
     "actionAnimations": {
       "type": "object",
-      "description": "Maps a behavior action to an animation name in `animations`. Actions without a mapping fall back to 'idle'.",
+      "description": "Documentation only — not read by the loader. The actual resolution happens in code (behavior-engine.js), which uses the action name directly as the animation name and falls back to 'idle' when there's no matching entry under `animations`. This block exists purely so a human reading the file can see the intended action -> animation mapping at a glance; renaming a key here has no effect on runtime behavior.",
       "properties": {
         "idle": { "$ref": "#/$defs/animationRef" },
         "walk": { "$ref": "#/$defs/animationRef" },
@@ -54,6 +54,7 @@
         "look": { "$ref": "#/$defs/animationRef" },
         "sit": { "$ref": "#/$defs/animationRef" },
         "watch": { "$ref": "#/$defs/animationRef" },
+        "watch_film": { "$ref": "#/$defs/animationRef" },
         "write": { "$ref": "#/$defs/animationRef" },
         "sleep": { "$ref": "#/$defs/animationRef" },
         "happy": { "$ref": "#/$defs/animationRef" },

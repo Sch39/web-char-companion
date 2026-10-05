@@ -9,7 +9,7 @@
   "use strict";
   const WCC = window.__WCC;
 
-  const SELECTOR = "h1,h2,h3,p,img,video,button,a,input,code,pre,article";
+  const SELECTOR = "h1,h2,h3,p,img,video,iframe,button,a,input,code,pre,article";
 
   // Candidate selectors for fixed bars (header/nav/footer) at viewport edges.
   const BAR_SELECTOR = [
@@ -69,6 +69,7 @@
           cx: rect.left + rect.width / 2,
           cy: rect.top + rect.height / 2,
           area: rect.width * rect.height,
+          isPlaying: type === "VIDEO" && !!WCC.playingVideoHosts?.has(el),
         });
       }
       this.targets = out;
@@ -107,6 +108,11 @@
     _typeOf(el) {
       const tag = el.tagName.toUpperCase();
       if (tag === "A" && !el.getAttribute("href")) return null;
+      // An iframe is only a candidate once it's reported as playing video
+      // (via video-watcher.js) — ordinary iframes (ads, widgets, maps...)
+      // stay invisible to the scanner, same as before this existed.
+      if (tag === "IFRAME")
+        return WCC.playingVideoHosts?.has(el) ? "VIDEO" : null;
       return WCC.SEMANTIC_SCORE[tag] != null ? tag : null;
     }
 

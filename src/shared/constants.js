@@ -31,6 +31,7 @@
       sitOnElements: true,
       sleep: true,
       reactToInput: true,
+      watchFilm: true,
     },
   };
 
@@ -99,6 +100,7 @@
     recentTargetMemory: 6, // how many recent targets to remember for novelty
     recentPenalty: 60,
     randomFactorMax: 40,
+    playingVideoBonus: 250, // dominates scoring while a video is playing (still weighted, not absolute)
     scrollCancelThreshold: 120, // px, target moved more than this mid-action -> cancel
     floorOffset: 1, // gap between the character and the visual floor (viewport bottom)
     topMargin: 6, // minimum gap between the character's head and the top/bottom bar
