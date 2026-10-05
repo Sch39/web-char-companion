@@ -18,6 +18,7 @@ const DEFAULT_SETTINGS = {
     sleep: true,
     reactToInput: true,
     watchFilm: true,
+    reactToDrag: true,
   },
 };
 

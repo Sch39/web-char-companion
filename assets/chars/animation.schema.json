@@ -55,6 +55,10 @@
           "description": "Alternative travel cycle, used instead of `walk` when the path to the target is steeper than CONFIG.steepWalkAngleDeg — a horizontal stride reads as sliding sideways at steep angles.",
           "allOf": [{ "$ref": "#/$defs/animation" }]
         },
+        "drag": {
+          "description": "Plays while the user is holding and dragging the character. Without this sheet, dragging falls back to `walk`/`idle` instead; only reachable while the \"React when dragged\" setting is on.",
+          "allOf": [{ "$ref": "#/$defs/animation" }]
+        },
         "read": {
           "description": "Plays on arrival at a heading or text block (H1, H2, H3, P, ARTICLE).",
           "allOf": [{ "$ref": "#/$defs/animation" }]

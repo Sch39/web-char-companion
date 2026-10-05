@@ -17,10 +17,11 @@
   const DRAG_THRESHOLD = 4; // px, moving more than this counts as a drag (not a click)
 
   class Interaction {
-    constructor({ renderer, movement, behavior }) {
+    constructor({ renderer, movement, behavior, getSettings }) {
       this.r = renderer;
       this.move = movement;
       this.behavior = behavior;
+      this.getSettings = getSettings || (() => WCC.DEFAULT_SETTINGS);
       this._lastScrollY = window.scrollY;
       this._onScroll = this._throttle(this._handleScroll.bind(this), 120);
       this._onResize = this._handleResize.bind(this);
@@ -115,7 +116,7 @@
       const dx = e.clientX - d.prevX;
       if (dx < -0.5) this.r.setFacing("left");
       else if (dx > 0.5) this.r.setFacing("right");
-      this.r.play(Math.abs(dx) > 0.5 ? "walk" : "idle");
+      this.r.play(this._dragAnimation(dx));
       this._place(e.clientX - d.offsetX, e.clientY - d.offsetY);
       d.prevX = e.clientX;
     }
@@ -135,6 +136,23 @@
         // didn't move -> treated as a click -> react
         this._react();
       }
+    }
+
+    /**
+     * What to show while the character is held. A dedicated `drag` sheet
+     * reads best — a walk cycle in mid-air looks like the character is
+     * strolling through the sky — so it wins whenever the character has one
+     * and the user hasn't switched the reaction off.
+     *
+     * Without that sheet, fall back to the older walk/idle behavior rather
+     * than to a static idle: play() alone would resolve `drag` to idle and
+     * make dragging look frozen, which is worse than the walk cycle it
+     * replaced.
+     */
+    _dragAnimation(dx) {
+      const wanted = this.getSettings().behaviors?.reactToDrag !== false;
+      if (wanted && this.r.has("drag")) return "drag";
+      return Math.abs(dx) > 0.5 ? "walk" : "idle";
     }
 
     _detachDrag() {

@@ -125,6 +125,15 @@
       `;
     }
 
+    /**
+     * Does this character actually define `name`? play() silently falls back
+     * to idle, which is the right default, but a caller that wants to pick a
+     * different fallback has to be able to ask first.
+     */
+    has(name) {
+      return !!this.defs?.[name];
+    }
+
     /** Switch the active animation. */
     play(name) {
       const resolved = this.defs[name] ? name : "idle";

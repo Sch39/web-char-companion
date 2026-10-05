@@ -94,7 +94,7 @@ Click the extension icon to open the settings popup.
 | Character            | Which character to show. |
 | This tab only        | Use the selected character for the current tab only. |
 | Activity             | How often it moves (Low / Medium / High). |
-| Page reactions       | Toggle read / look / sit / sleep / take-notes / watch-videos individually. |
+| Page reactions       | Toggle read / look / sit / sleep / take-notes / watch-videos / react-when-dragged individually. |
 | Reduce motion        | Keep it still (also honored automatically via the OS setting). |
 | Site rule            | Default (auto) / Always on here / Disable here, per domain. |
 | Auto-disable         | Keywords that hide the companion when the URL contains them. |
@@ -206,12 +206,12 @@ A character is a folder under `assets/chars/<id>/` containing an
   Measure it once from idle's sheet with the animation preview page.
 - `animations` keys **are** the action names — behavior code plays an action
   by using its name as the key directly, so there's no mapping table to keep
-  in sync. The full set is `idle`, `walk`, `hop`, `read`, `look`, `sit`,
-  `watch`, `watch_film`, `write`, `sleepy`, `sleep`, `happy`, `surprised`;
-  the schema rejects anything else, since an entry under another name would
-  never play. Only `idle` is required — every other action falls back to it
-  when its sheet is absent, so a character can ship with just `idle` and
-  grow from there.
+  in sync. The full set is `idle`, `walk`, `hop`, `drag`, `read`, `look`,
+  `sit`, `watch`, `watch_film`, `write`, `sleepy`, `sleep`, `happy`,
+  `surprised`; the schema rejects anything else, since an entry under another
+  name would never play. Only `idle` is required — every other action falls
+  back to it when its sheet is absent, so a character can ship with just
+  `idle` and grow from there.
 - `sleepy` and `sleep` are one sequence: the random sleep state plays
   `sleepy` as a short yawn first (`CONFIG.drowsyMin`–`drowsyMax`), then
   settles into the `sleep` loop.
@@ -219,6 +219,10 @@ A character is a folder under `assets/chars/<id>/` containing an
   `movement-engine.js` picks between them by the angle of travel, switching to
   `hop` past `CONFIG.steepWalkAngleDeg`, since a horizontal walk cycle looks
   like it's sliding sideways once travel isn't mostly left-right.
+- `drag` plays while the user holds the character. It's the one action that
+  doesn't fall back to `idle`: without a `drag` sheet, dragging keeps the
+  older `walk`/`idle` behavior, because a frozen idle pose reads worse than
+  a walk cycle while something is being carried around.
 
 The `$schema` field points at `assets/chars/animation.schema.json`, which gives
 autocomplete and validation in editors like VS Code and JetBrains — the

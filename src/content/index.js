@@ -177,7 +177,12 @@
       movement,
       getSettings,
     });
-    const interaction = new WCC.Interaction({ renderer, movement, behavior });
+    const interaction = new WCC.Interaction({
+      renderer,
+      movement,
+      behavior,
+      getSettings,
+    });
 
     videoWatcher.start();
     scanner.start();

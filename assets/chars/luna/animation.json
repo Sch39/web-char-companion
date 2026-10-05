@@ -110,6 +110,14 @@
       "frames": 18,
       "fps": 8,
       "loop": true
+    },
+    "drag": {
+      "sheet": "drag.png",
+      "columns": 6,
+      "rows": 2,
+      "frames": 10,
+      "fps": 6,
+      "loop": true
     }
   }
 }

@@ -32,6 +32,7 @@
       sleep: true,
       reactToInput: true,
       watchFilm: true,
+      reactToDrag: true,
     },
   };
 
