@@ -26,6 +26,7 @@
       this.pos = { x: 80, y: 0 }; // foot coords (bottom-center) in the viewport
       this.size = { w: 128, h: 128 };
       this.insets = { top: 0, bottom: 0 }; // area blocked by fixed/sticky bars
+      this.onMove = null; // optional callback(x, y), fired on every setPosition
     }
 
     /** @param {{manifest: object, sheets: Record<string,string>}} data */
@@ -148,6 +149,7 @@
       this.pos.x = x;
       this.pos.y = y;
       this._applyTransform();
+      this.onMove?.(x, y);
     }
 
     /**

@@ -21,6 +21,51 @@
 
   const getSettings = () => app.settings;
 
+  // Same leading+trailing throttle shape used in dom-scanner.js/interaction.js.
+  function throttle(fn, wait) {
+    let last = 0;
+    let timer = null;
+    const wrapped = (...args) => {
+      const now = Date.now();
+      const remaining = wait - (now - last);
+      if (remaining <= 0) {
+        last = now;
+        fn(...args);
+      } else if (!timer) {
+        timer = setTimeout(() => {
+          last = Date.now();
+          timer = null;
+          fn(...args);
+        }, remaining);
+      }
+    };
+    wrapped.cancel = () => {
+      if (timer) clearTimeout(timer);
+      timer = null;
+    };
+    return wrapped;
+  }
+
+  function savePositionNow(renderer) {
+    if (!renderer?.pos) return;
+    chrome.runtime.sendMessage(
+      { type: "WCC_SAVE_POSITION", x: renderer.pos.x, y: renderer.pos.y },
+      () => void chrome.runtime.lastError,
+    );
+  }
+
+  // This tab's last known position (if any). Restored on boot so a hard
+  // refresh or navigation resumes roughly where the character was instead of
+  // respawning at the default spot.
+  async function getSavedPosition() {
+    try {
+      const res = await chrome.runtime.sendMessage({ type: "WCC_GET_POSITION" });
+      return res?.position || null;
+    } catch {
+      return null;
+    }
+  }
+
   async function loadStorage() {
     const { SETTINGS, SITE_RULES } = WCC.STORAGE_KEYS;
     const data = await chrome.storage.sync.get([SETTINGS, SITE_RULES]);
@@ -102,6 +147,22 @@
       return;
     }
 
+    // Resume from this tab's last known position, if we have one.
+    const savedPos = await getSavedPosition();
+    if (seq !== bootSeq) {
+      renderer.destroy();
+      return;
+    }
+    if (savedPos) {
+      const c = renderer.clampFoot(savedPos.x, savedPos.y);
+      renderer.setPosition(c.x, c.y);
+    }
+    const savePosition = throttle(
+      () => savePositionNow(renderer),
+      WCC.CONFIG.positionSaveThrottleMs,
+    );
+    renderer.onMove = savePosition;
+
     const videoWatcher = new WCC.VideoWatcher();
     const scanner = new WCC.DomScanner();
     // Detected fixed/sticky bars -> constrain the character's movement area.
@@ -140,6 +201,7 @@
       movement,
       behavior,
       interaction,
+      savePosition,
     };
     WCC.log("companion active on", location.hostname);
   }
@@ -147,6 +209,10 @@
   function teardown() {
     const m = app.modules;
     if (!m) return;
+    // Flush the latest position immediately rather than waiting on the
+    // throttle, so an SPA navigation doesn't lose a few hundred ms of motion.
+    m.savePosition?.cancel?.();
+    savePositionNow(m.renderer);
     m.behavior.stop();
     m.scanner.stop();
     m.videoWatcher.stop();
@@ -177,6 +243,14 @@
     if (e.persisted) reevaluate(); // restored from bfcache; content didn't re-run
   });
   setInterval(onLocationChange, 1000);
+
+  // Best-effort final save before an actual page unload (hard refresh, or
+  // navigating away entirely) — teardown() only runs for in-page navigation,
+  // so this is the one chance to catch a position reached in the last
+  // moments before the whole document (and this script) is torn down.
+  window.addEventListener("pagehide", () => {
+    savePositionNow(app.modules?.renderer);
+  });
 
   // Messages from the popup / service worker
   chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
