@@ -50,6 +50,7 @@
       "properties": {
         "idle": { "$ref": "#/$defs/animationRef" },
         "walk": { "$ref": "#/$defs/animationRef" },
+        "hop": { "$ref": "#/$defs/animationRef" },
         "read": { "$ref": "#/$defs/animationRef" },
         "look": { "$ref": "#/$defs/animationRef" },
         "sit": { "$ref": "#/$defs/animationRef" },
