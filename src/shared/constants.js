@@ -110,6 +110,10 @@
     steepWalkAngleDeg: 40, // travel angle (from horizontal) above which "hop" replaces "walk"
     drowsyMin: 2000, // ms, the yawn/stretch beat that leads into the sleep loop
     drowsyMax: 4000,
+    // A muted, looping, control-less clip no longer than this reads as
+    // background decoration (hero/banner loops) rather than something a
+    // person is watching. Set to 0 to treat every playing video as watchable.
+    decorativeMaxDurationSec: 30,
   };
 
   // State machine

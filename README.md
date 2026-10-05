@@ -51,6 +51,20 @@ content is read. That signal isn't cryptographically verified, so a page could
 in theory spoof it; the only consequence is a cosmetic one (the companion
 reacts to a false signal), never a data or permission issue.
 
+For video in the page itself, playback state is read straight off the
+`<video>` element's own `paused`/`readyState` properties at the moment it's
+needed — no event bookkeeping, and nothing about the media is inspected
+beyond "is it running". That also means players built on Media Source
+Extensions (Shaka Player, hls.js, dash.js, video.js…) work without the
+extension knowing anything about the library: they all drive a real
+`<video>` element underneath.
+
+Decorative background video is left alone. A clip that is muted, looping,
+has no controls, and runs under `CONFIG.decorativeMaxDurationSec` (30s) reads
+as a hero/banner loop, so the companion won't settle in to watch it — it
+stays an ordinary video target instead. Set that value to `0` to react to
+every playing video.
+
 ---
 
 ## Installation (load unpacked)
