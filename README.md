@@ -9,8 +9,9 @@ dozes off when idle — a small, playful presence that never gets in the way.
 
 ## Demo
 
-[**Watch the demo clip**](demo/demo.mp4) — 57 seconds, MP4, 3.6 MB. GitHub
-plays it in the file viewer.
+![The companion walking across a page, reading a heading, and sitting on a button](demo/demo.gif)
+
+The full clip: [demo/demo.mp4](demo/demo.mp4) (57 seconds, 3.6 MB).
 
 ---
 
