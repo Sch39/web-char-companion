@@ -9,8 +9,7 @@
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
   },
-  "permissions": ["storage", "unlimitedStorage", "activeTab", "scripting"],
-  "host_permissions": ["http://*/*", "https://*/*"],
+  "permissions": ["storage", "unlimitedStorage", "activeTab"],
   "background": {
     "service_worker": "src/background/service-worker.js",
     "type": "module"

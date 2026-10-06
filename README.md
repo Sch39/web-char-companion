@@ -362,8 +362,7 @@ a real page. "Copy JSON" gives you the tuned fields to paste into
 | `storage`               | Save settings and per-tab character choices.               |
 | `unlimitedStorage`      | Store imported character sprite sheets locally.            |
 | `activeTab`             | Read the active tab's URL in the popup for per-site rules. |
-| `scripting`             | Standard for the content overlay.                          |
-| `http://*`, `https://*` | Run the overlay on web pages.                              |
+| `http://*`, `https://*` | Content script match pattern: run the overlay on web pages. |
 
 No background network access, no data collection.
 
