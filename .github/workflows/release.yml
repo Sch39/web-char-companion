@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # A tag that disagrees with manifest.json is silent otherwise: the
+      # release page says one version and Chrome reports another.
+      - name: Check manifest version against the tag
+        run: |
+          tag_version="${GITHUB_REF_NAME#v}"
+          manifest_version=$(node -p "require('./manifest.json').version")
+          if [ "$manifest_version" != "$tag_version" ]; then
+            echo "::error::tag $GITHUB_REF_NAME expects version $tag_version, but manifest.json has $manifest_version"
+            exit 1
+          fi
+          echo "version=$manifest_version" >> "$GITHUB_ENV"
+
+      # git archive ships committed files only, so nothing stray on the
+      # runner can end up in the download. Exclusions live in .gitattributes.
+      - name: Build the archive
+        run: |
+          git archive --format=zip -o "web-char-companion-$version.zip" HEAD
+          unzip -l "web-char-companion-$version.zip"
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "web-char-companion-$version.zip" \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes

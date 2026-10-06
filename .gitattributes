@@ -1,0 +1,5 @@
+# Keep development-only files out of the release archive (git archive).
+/.gitattributes export-ignore
+/.gitignore    export-ignore
+/.github       export-ignore
+/.vscode       export-ignore

@@ -79,12 +79,22 @@ every playing video.
 
 ## Installation (load unpacked)
 
-1. Download or clone this repository.
+The extension isn't on the Chrome Web Store, so it's installed unpacked. That
+is the only supported route — a `.crx` dropped onto `chrome://extensions` is
+blocked by Chrome outside the store, so none is published here.
+
+1. Grab `web-char-companion-<version>.zip` from the
+   [latest release](../../releases/latest) and unzip it, or clone this
+   repository.
 2. Open `chrome://extensions` (or `edge://extensions`).
 3. Enable **Developer mode** (top-right).
-4. Click **Load unpacked** and select the `web-char-companion` folder (the one
-   containing `manifest.json`).
+4. Click **Load unpacked** and select the folder containing `manifest.json`.
 5. Open any website — the companion appears and starts wandering.
+
+Keep the unzipped folder where it is: Chrome loads an unpacked extension from
+that path on every start, and the extension disappears if it moves. To update,
+unzip the new release over the same folder and click reload on the extension
+card.
 
 Click the extension icon to open the settings popup.
 
@@ -360,6 +370,22 @@ No background network access, no data collection.
 - Changes to the popup or service worker require that reload; most content
   changes just need a page refresh.
 - The code targets modern Chromium and uses no bundler or package manager.
+
+### Releasing
+
+Pushing a `v*` tag builds the download and publishes a release. The version in
+`manifest.json` has to match the tag first, otherwise the run fails on purpose
+— a release labelled one version while Chrome reports another is invisible
+until someone reports a bug against the wrong number.
+
+```sh
+# bump "version" in manifest.json, commit, then:
+git tag v0.2.0
+git push origin v0.2.0
+```
+
+The archive is built with `git archive`, so it contains committed files only;
+`.gitattributes` lists what to leave out of it.
 
 ---
 
