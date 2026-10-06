@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Web Chibi Companion — Animation Preview</title>
+    <title>Web Char Companion — Animation Preview</title>
     <link rel="stylesheet" href="debug.css" />
   </head>
   <body>
@@ -46,16 +46,24 @@
           <label class="field inline">
             <input type="checkbox" id="freeze" />
             <span>Freeze frame</span>
-            <input type="range" id="frameSlider" min="0" max="0" value="0" step="1" disabled />
+            <input
+              type="range"
+              id="frameSlider"
+              min="0"
+              max="0"
+              value="0"
+              step="1"
+              disabled
+            />
             <span id="frameLabel">0</span>
           </label>
         </div>
 
         <p class="hint">
           The horizontal line marks the shared ground anchor used by the
-          character's movement code. Flip between Reference and Compare — if
-          the feet shift against that line, tune Compare below until the flip
-          holds steady.
+          character's movement code. Flip between Reference and Compare — if the
+          feet shift against that line, tune Compare below until the flip holds
+          steady.
         </p>
       </section>
 

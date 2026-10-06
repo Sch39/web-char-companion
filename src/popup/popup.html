@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Web Chibi Companion</title>
+    <title>Web Char Companion</title>
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
@@ -39,14 +39,30 @@
 
       <fieldset class="group">
         <legend>Page reactions</legend>
-        <label class="check"><input type="checkbox" id="readHeadings" /> Read headings</label>
-        <label class="check"><input type="checkbox" id="lookAtImages" /> Look at images</label>
-        <label class="check"><input type="checkbox" id="sitOnElements" /> Sit on elements</label>
+        <label class="check"
+          ><input type="checkbox" id="readHeadings" /> Read headings</label
+        >
+        <label class="check"
+          ><input type="checkbox" id="lookAtImages" /> Look at images</label
+        >
+        <label class="check"
+          ><input type="checkbox" id="sitOnElements" /> Sit on elements</label
+        >
         <label class="check"><input type="checkbox" id="sleep" /> Sleep</label>
-        <label class="check"><input type="checkbox" id="reactToInput" /> Take notes while typing</label>
-        <label class="check"><input type="checkbox" id="watchFilm" /> Watch playing videos</label>
-        <label class="check"><input type="checkbox" id="reactToDrag" /> React when dragged</label>
-        <label class="check"><input type="checkbox" id="reactToSensitive" /> Tiptoe past password fields</label>
+        <label class="check"
+          ><input type="checkbox" id="reactToInput" /> Take notes while
+          typing</label
+        >
+        <label class="check"
+          ><input type="checkbox" id="watchFilm" /> Watch playing videos</label
+        >
+        <label class="check"
+          ><input type="checkbox" id="reactToDrag" /> React when dragged</label
+        >
+        <label class="check"
+          ><input type="checkbox" id="reactToSensitive" /> Tiptoe past password
+          fields</label
+        >
       </fieldset>
 
       <label class="row">
@@ -65,8 +81,10 @@
 
       <fieldset class="group">
         <legend>Auto-disable (keywords)</legend>
-        <p class="hint">The companion hides when the URL contains any of these
-          words. One per line. Leave empty for no restriction.</p>
+        <p class="hint">
+          The companion hides when the URL contains any of these words. One per
+          line. Leave empty for no restriction.
+        </p>
         <textarea id="sensitiveHints" rows="4" spellcheck="false"></textarea>
       </fieldset>
 

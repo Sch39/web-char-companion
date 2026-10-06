@@ -1,6 +1,6 @@
-# Web Chibi Companion
+# Web Char Companion
 
-A chibi virtual companion that lives on top of any web page. It walks around,
+A character virtual companion that lives on top of any web page. It walks around,
 reads headings, looks at images, sits on buttons, reacts when you type, and
 dozes off when idle — a small, playful presence that never gets in the way.
 
@@ -195,23 +195,23 @@ poses anywhere. The only thing that varies per action is whether the camera
 sits in **front of** or **behind** the character; the rightward angle is the
 same either way.
 
-| Action       | Camera     | Notes                                                       |
-| ------------ | ---------- | ----------------------------------------------------------- |
-| `idle`       | 3/4 front  | the resting baseline every other sheet is matched against   |
-| `walk`       | 3/4 front  | travel                                                      |
-| `hop`        | 3/4 front  | travel, same framing as `walk`                              |
-| `drag`       | 3/4 front  | held in mid-air, feet off the ground                        |
-| `read`       | 3/4 front  | holding its own reading material                            |
-| `look`       | 3/4 front  | gaze off toward the angled side                             |
-| `sit`        | 3/4 front  | seated, feet flush on the element's top edge                |
+| Action       | Camera       | Notes                                                       |
+| ------------ | ------------ | ----------------------------------------------------------- |
+| `idle`       | 3/4 front    | the resting baseline every other sheet is matched against   |
+| `walk`       | 3/4 front    | travel                                                      |
+| `hop`        | 3/4 front    | travel, same framing as `walk`                              |
+| `drag`       | 3/4 front    | held in mid-air, feet off the ground                        |
+| `read`       | 3/4 front    | holding its own reading material                            |
+| `look`       | 3/4 front    | gaze off toward the angled side                             |
+| `sit`        | 3/4 front    | seated, feet flush on the element's top edge                |
 | `watch`      | **3/4 back** | facing a screen that's in front of it, away from the viewer |
 | `watch_film` | **3/4 back** | same camera as `watch`, seated with a snack                 |
-| `write`      | 3/4 front  | notebook angled toward itself                               |
-| `sneak`      | 3/4 front  | tiptoeing past at a distance                                |
-| `sleepy`     | 3/4 front  | yawning lead-in to `sleep`                                  |
-| `sleep`      | 3/4 front  | curled up, eyes closed                                      |
-| `happy`      | 3/4 front  | reaction — keep the face clearly readable                   |
-| `surprised`  | 3/4 front  | reaction — keep the face clearly readable                   |
+| `write`      | 3/4 front    | notebook angled toward itself                               |
+| `sneak`      | 3/4 front    | tiptoeing past at a distance                                |
+| `sleepy`     | 3/4 front    | yawning lead-in to `sleep`                                  |
+| `sleep`      | 3/4 front    | curled up, eyes closed                                      |
+| `happy`      | 3/4 front    | reaction — keep the face clearly readable                   |
+| `surprised`  | 3/4 front    | reaction — keep the face clearly readable                   |
 
 You don't have to work out which way to flip anything at runtime: on
 arriving at a target the character turns to face it, so an action anchored
