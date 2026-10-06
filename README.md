@@ -9,9 +9,8 @@ dozes off when idle — a small, playful presence that never gets in the way.
 
 ## Demo
 
-<video src="https://github.com/Sch39/web-char-companion/raw/master/demo/demo.mp4" controls muted loop width="640">
-  <a href="demo/demo.mp4">Watch the demo clip</a> (MP4, 3.6 MB).
-</video>
+[**Watch the demo clip**](demo/demo.mp4) — 57 seconds, MP4, 3.6 MB. GitHub
+plays it in the file viewer.
 
 ---
 
