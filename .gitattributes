@@ -3,3 +3,6 @@
 /.gitignore    export-ignore
 /.github       export-ignore
 /.vscode       export-ignore
+
+# The demo clip is documentation, not part of the extension.
+/demo          export-ignore

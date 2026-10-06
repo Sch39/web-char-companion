@@ -7,6 +7,12 @@ dozes off when idle — a small, playful presence that never gets in the way.
 > Manifest V3 browser extension (Chrome / Edge / Chromium). No build step, no
 > dependencies — plain HTML, CSS, and JavaScript.
 
+## Demo
+
+<video src="https://github.com/Sch39/web-char-companion/raw/master/demo/demo.mp4" controls muted loop width="640">
+  <a href="demo/demo.mp4">Watch the demo clip</a> (MP4, 3.6 MB).
+</video>
+
 ---
 
 ## Features
