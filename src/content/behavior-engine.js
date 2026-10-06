@@ -95,9 +95,28 @@
       if (result === "cancelled" || !this.running || this.paused) return;
 
       // PERFORM_ACTION
+      this._faceElement(target.el);
       await this._perform(action, target);
       this._activeTarget = null;
       this._scheduleIdle();
+    }
+
+    /**
+     * Turn toward the element just reached.
+     *
+     * Travel direction alone gets this wrong, and silently: walkTo() sets
+     * facing from the direction of movement, so any action anchored on the
+     * *far* side of its target — `look` beside an image, `sneak` past a
+     * password field — leaves the character still facing the way it came
+     * and therefore turned away from the thing it just walked over to look
+     * at. Re-reading the rect here also beats the one captured at scan
+     * time, which the walk itself may have outdated.
+     */
+    _faceElement(el) {
+      const rect = el?.getBoundingClientRect?.();
+      if (!rect) return;
+      const centerX = rect.left + rect.width / 2;
+      this.r.setFacing(centerX < this.r.pos.x ? "left" : "right");
     }
 
     async _perform(action, target) {
@@ -143,27 +162,41 @@
 
     /**
      * React when the user focuses an input/textarea: stop the routine, walk
-     * over to the field, then play the writing animation. The character stays
-     * there while that field keeps focus (no new target is scheduled). No typed
-     * content is read — this is purely a reaction to the focus event.
+     * over to the field, then hold a pose while that field keeps focus (no
+     * new target is scheduled meanwhile). No typed content is read — this is
+     * purely a reaction to the focus event.
+     *
+     * A field that looks private (password, card number, one-time code) gets
+     * `sneak` instead of `write`, behind its own setting. The two can never
+     * both fire: the field is either sensitive or it isn't, and each case
+     * checks only its own toggle — so turning the sneak reaction off means
+     * the character ignores such fields entirely rather than falling back to
+     * leaning in and taking notes at them.
+     *
+     * @param {Element} el
+     * @param {boolean} [sensitive] from interaction.js's _isSensitiveField
      */
-    onInputFocus(el) {
+    onInputFocus(el, sensitive = false) {
       if (!this.running || this.paused) return;
-      if (this.getSettings().behaviors?.reactToInput === false) return;
+      const b = this.getSettings().behaviors || {};
+      if (sensitive ? b.reactToSensitive === false : b.reactToInput === false) {
+        return;
+      }
       this._focusEl = el;
       this._clearTimer();
       this.move.cancel();
-      this._runFocus(el);
+      this._runFocus(el, sensitive ? "sneak" : "write");
     }
 
-    async _runFocus(el) {
-      const anchor = this.move.anchorFor("write", el.getBoundingClientRect());
+    async _runFocus(el, action) {
+      const anchor = this.move.anchorFor(action, el.getBoundingClientRect());
       this.state = WCC.STATE.MOVE_TO_TARGET;
       const res = await this.move.walkTo(anchor.x, anchor.y);
       if (res === "cancelled" || this._focusEl !== el || this.paused) return;
-      this.state = WCC.STATE.WRITE;
-      this.r.play("write"); // falls back to idle until a 'write' sheet exists
-      WCC.log("reaction: writing at", el.tagName.toLowerCase());
+      this._faceElement(el);
+      this.state = action === "sneak" ? WCC.STATE.SNEAK : WCC.STATE.WRITE;
+      this.r.play(action); // falls back to idle until that sheet exists
+      WCC.log(`reaction: ${action} at`, el.tagName.toLowerCase());
     }
 
     onInputBlur(el) {

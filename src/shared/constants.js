@@ -33,6 +33,7 @@
       reactToInput: true,
       watchFilm: true,
       reactToDrag: true,
+      reactToSensitive: true,
     },
   };
 
@@ -49,6 +50,36 @@
     "wallet",
     "password",
   ];
+
+  // --- Sensitive field detection (see interaction.js's _isSensitiveField) ---
+  //
+  // Only attributes and visible label text are ever examined. A field's
+  // value is never read, by this or anything else in the extension.
+
+  // Standards-based and therefore the most reliable signal: these are the
+  // same tokens browsers and password managers key off.
+  WCC.SENSITIVE_AUTOCOMPLETE = [
+    "current-password",
+    "new-password",
+    "one-time-code",
+    "cc-number",
+    "cc-csc",
+    "cc-exp",
+    "cc-name",
+  ];
+
+  // Matched against a field's own human-readable text: name, id, placeholder,
+  // aria-label and its <label>. Prose tolerates broader wording than CSS
+  // class names do, so this list can afford to be more generous.
+  WCC.SENSITIVE_TEXT =
+    /pass(word|wd|phrase)|\bpin\b|\botp\b|\bcvv\b|\bcvc\b|security code|card number|credit card|\bssn\b|social security|\biban\b|secret|token|verification code|one[-\s]?time[-\s]?code/i;
+
+  // Matched against class and id on the field *and its ancestors*. Narrower
+  // on purpose: bare UI words are everywhere in ordinary markup — Bootstrap's
+  // `.card` alone would flag inputs on half the web — so only unambiguous
+  // compounds belong here.
+  WCC.SENSITIVE_MARKUP =
+    /password|passwd|\bpwd\b|credit-?card|card-?number|cvv|cvc|one-?time-?code|\botp\b|\bssn\b|iban/i;
 
   // Semantic score per target type
   WCC.SEMANTIC_SCORE = {
@@ -115,6 +146,10 @@
     // background decoration (hero/banner loops) rather than something a
     // person is watching. Set to 0 to treat every playing video as watchable.
     decorativeMaxDurationSec: 30,
+    // How many ancestors above a focused field to inspect for sensitive
+    // class/id markers — enough to reach a wrapping form group or fieldset
+    // without climbing into page-level layout.
+    sensitiveAncestorDepth: 5,
   };
 
   // State machine
@@ -124,6 +159,7 @@
     MOVE_TO_TARGET: "MOVE_TO_TARGET",
     PERFORM_ACTION: "PERFORM_ACTION",
     WRITE: "WRITE",
+    SNEAK: "SNEAK", // tiptoeing past a sensitive field instead of writing
     DROWSY: "DROWSY", // the brief yawn that leads into SLEEP
     SLEEP: "SLEEP",
   };

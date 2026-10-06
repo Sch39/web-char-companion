@@ -52,7 +52,7 @@
           "allOf": [{ "$ref": "#/$defs/animation" }]
         },
         "hop": {
-          "description": "Alternative travel cycle, used instead of `walk` when the path to the target is steeper than CONFIG.steepWalkAngleDeg — a horizontal stride reads as sliding sideways at steep angles.",
+          "description": "Alternative travel cycle, used instead of `walk` when the path to the target is steeper than CONFIG.steepWalkAngleDeg — a walk reads as striding along a ground plane, and there isn't one when the path is mostly vertical, so an airborne hop carries it instead.",
           "allOf": [{ "$ref": "#/$defs/animation" }]
         },
         "drag": {
@@ -81,6 +81,10 @@
         },
         "write": {
           "description": "Plays after the character walks over to a text field the user just focused. Only reachable while the \"Take notes while typing\" setting is on.",
+          "allOf": [{ "$ref": "#/$defs/animation" }]
+        },
+        "sneak": {
+          "description": "Plays instead of `write` when the focused field looks private — a password, card number or one-time code. Detected from attributes and label text only, never the field's value. Only reachable while the \"Tiptoe past password fields\" setting is on; with it off the character ignores such fields entirely.",
           "allOf": [{ "$ref": "#/$defs/animation" }]
         },
         "sleepy": {

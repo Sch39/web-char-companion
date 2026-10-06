@@ -19,6 +19,7 @@ const DEFAULT_SETTINGS = {
     reactToInput: true,
     watchFilm: true,
     reactToDrag: true,
+    reactToSensitive: true,
   },
 };
 

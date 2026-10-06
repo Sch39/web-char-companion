@@ -18,7 +18,7 @@ dozes off when idle — a small, playful presence that never gets in the way.
   randomness so it never feels like a scripted loop.
 - **Contextual actions** — reads headings/paragraphs, looks at images, sits on
   buttons, watches videos, and takes notes while you type. A video that's
-  actually *playing* (including inside an embedded YouTube/Vimeo-style
+  actually _playing_ (including inside an embedded YouTube/Vimeo-style
   iframe) heavily favors a dedicated "watching a film" reaction over the
   usual random picks.
 - **Interactive** — click it for a quick reaction, or drag it anywhere; it stays
@@ -42,6 +42,16 @@ locally in your browser; there is no server and no analytics.
 
 The "take notes while typing" reaction is triggered purely by focus events on
 input fields — the typed text is never inspected.
+
+Fields that look private — `type="password"`, a `current-password` /
+`new-password` / `cc-number` / `one-time-code` autocomplete token, or a
+label, name or nearby class naming a password, card number, CVV, OTP, SSN or
+IBAN — get a separate reaction (the character tiptoes past at a distance
+instead of leaning in). That classification reads attributes and visible
+label text only; **the field's value is never read**, and nothing about it
+is stored or sent. Turning the reaction off makes the character ignore such
+fields entirely. Note this is a per-_field_ reaction, separate from the
+per-_URL_ keyword list below, which hides the companion from whole pages.
 
 Detecting playback inside a cross-origin iframe (e.g. a YouTube embed) needs a
 small, dependency-free script injected into every frame on every page, since a
@@ -88,16 +98,16 @@ Click the extension icon to open the settings popup.
 
 ### Settings
 
-| Setting              | What it does |
-| -------------------- | ------------ |
-| Enabled              | Master on/off. |
-| Character            | Which character to show. |
-| This tab only        | Use the selected character for the current tab only. |
-| Activity             | How often it moves (Low / Medium / High). |
-| Page reactions       | Toggle read / look / sit / sleep / take-notes / watch-videos / react-when-dragged individually. |
-| Reduce motion        | Keep it still (also honored automatically via the OS setting). |
-| Site rule            | Default (auto) / Always on here / Disable here, per domain. |
-| Auto-disable         | Keywords that hide the companion when the URL contains them. |
+| Setting        | What it does                                                                                                                  |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Enabled        | Master on/off.                                                                                                                |
+| Character      | Which character to show.                                                                                                      |
+| This tab only  | Use the selected character for the current tab only.                                                                          |
+| Activity       | How often it moves (Low / Medium / High).                                                                                     |
+| Page reactions | Toggle read / look / sit / sleep / take-notes / watch-videos / react-when-dragged / tiptoe-past-password-fields individually. |
+| Reduce motion  | Keep it still (also honored automatically via the OS setting).                                                                |
+| Site rule      | Default (auto) / Always on here / Disable here, per domain.                                                                   |
+| Auto-disable   | Keywords that hide the companion when the URL contains them.                                                                  |
 
 ---
 
@@ -168,6 +178,46 @@ A character is a folder under `assets/chars/<id>/` containing an
 - Transparent background (PNG with alpha), one centered character per frame,
   feet on a consistent baseline.
 
+### Which way the character should face
+
+**Draw every sheet angled toward screen-right.** Two reasons:
+
+- The renderer only ever mirrors **horizontally**, using `defaultFacing` as
+  the direction the art is drawn in. Give it right-facing art and it
+  produces the left-facing version for free; give it art facing some other
+  way and there's nothing it can do.
+- Mixing a straight-on pose with an angled one makes the character visibly
+  pop when actions switch, since the silhouette changes shape rather than
+  just flipping. One consistent angle across every sheet avoids that.
+
+Every sheet is **three-quarter view** — no full profiles and no straight-on
+poses anywhere. The only thing that varies per action is whether the camera
+sits in **front of** or **behind** the character; the rightward angle is the
+same either way.
+
+| Action       | Camera     | Notes                                                       |
+| ------------ | ---------- | ----------------------------------------------------------- |
+| `idle`       | 3/4 front  | the resting baseline every other sheet is matched against   |
+| `walk`       | 3/4 front  | travel                                                      |
+| `hop`        | 3/4 front  | travel, same framing as `walk`                              |
+| `drag`       | 3/4 front  | held in mid-air, feet off the ground                        |
+| `read`       | 3/4 front  | holding its own reading material                            |
+| `look`       | 3/4 front  | gaze off toward the angled side                             |
+| `sit`        | 3/4 front  | seated, feet flush on the element's top edge                |
+| `watch`      | **3/4 back** | facing a screen that's in front of it, away from the viewer |
+| `watch_film` | **3/4 back** | same camera as `watch`, seated with a snack                 |
+| `write`      | 3/4 front  | notebook angled toward itself                               |
+| `sneak`      | 3/4 front  | tiptoeing past at a distance                                |
+| `sleepy`     | 3/4 front  | yawning lead-in to `sleep`                                  |
+| `sleep`      | 3/4 front  | curled up, eyes closed                                      |
+| `happy`      | 3/4 front  | reaction — keep the face clearly readable                   |
+| `surprised`  | 3/4 front  | reaction — keep the face clearly readable                   |
+
+You don't have to work out which way to flip anything at runtime: on
+arriving at a target the character turns to face it, so an action anchored
+on the far side of its element (`look` beside an image, `sneak` past a
+password field) ends up looking _at_ it rather than away.
+
 ### `animation.json`
 
 ```json
@@ -178,9 +228,31 @@ A character is a folder under `assets/chars/<id>/` containing an
   "renderScale": 0.5,
   "defaultFacing": "right",
   "animations": {
-    "idle": { "sheet": "idle.png", "columns": 4, "rows": 2, "frames": 8, "fps": 10, "loop": true },
-    "walk": { "sheet": "walk.png", "columns": 4, "rows": 2, "frames": 8, "fps": 14, "loop": true },
-    "read": { "sheet": "read.png", "columns": 6, "rows": 2, "frames": 12, "fps": 8, "loop": true, "scale": 0.8 }
+    "idle": {
+      "sheet": "idle.png",
+      "columns": 4,
+      "rows": 2,
+      "frames": 8,
+      "fps": 10,
+      "loop": true
+    },
+    "walk": {
+      "sheet": "walk.png",
+      "columns": 4,
+      "rows": 2,
+      "frames": 8,
+      "fps": 14,
+      "loop": true
+    },
+    "read": {
+      "sheet": "read.png",
+      "columns": 6,
+      "rows": 2,
+      "frames": 12,
+      "fps": 8,
+      "loop": true,
+      "scale": 0.8
+    }
   }
 }
 ```
@@ -199,7 +271,7 @@ A character is a folder under `assets/chars/<id>/` containing an
 - `idleFootGap` (optional, top-level, default `0`) is the gap between idle's
   own drawn feet and the position anchor (the sprite box's edge, which is what
   movement targets actually aim at — not the drawn feet). `scale`/`offsetY`
-  above only keep every animation's feet matching *idle's* gap, so switching
+  above only keep every animation's feet matching _idle's_ gap, so switching
   animations doesn't jump; they don't make the anchor itself land exactly on a
   target element. Behavior that needs real contact (e.g. "sit" standing flush
   on top of a button) adds `idleFootGap` back in when computing where to walk.
@@ -207,18 +279,24 @@ A character is a folder under `assets/chars/<id>/` containing an
 - `animations` keys **are** the action names — behavior code plays an action
   by using its name as the key directly, so there's no mapping table to keep
   in sync. The full set is `idle`, `walk`, `hop`, `drag`, `read`, `look`,
-  `sit`, `watch`, `watch_film`, `write`, `sleepy`, `sleep`, `happy`,
+  `sit`, `watch`, `watch_film`, `write`, `sneak`, `sleepy`, `sleep`, `happy`,
   `surprised`; the schema rejects anything else, since an entry under another
   name would never play. Only `idle` is required — every other action falls
   back to it when its sheet is absent, so a character can ship with just
   `idle` and grow from there.
+- `write` and `sneak` are the two field reactions, and are mutually
+  exclusive: focusing an ordinary field plays `write`, focusing one that
+  looks private plays `sneak` (see Privacy above). Each has its own toggle,
+  so switching `sneak` off makes the character ignore private fields rather
+  than lean in to take notes at them.
 - `sleepy` and `sleep` are one sequence: the random sleep state plays
   `sleepy` as a short yawn first (`CONFIG.drowsyMin`–`drowsyMax`), then
   settles into the `sleep` loop.
-- `walk` and `hop` are *travel* animations rather than destination actions:
+- `walk` and `hop` are _travel_ animations rather than destination actions:
   `movement-engine.js` picks between them by the angle of travel, switching to
-  `hop` past `CONFIG.steepWalkAngleDeg`, since a horizontal walk cycle looks
-  like it's sliding sideways once travel isn't mostly left-right.
+  `hop` past `CONFIG.steepWalkAngleDeg`. A walk cycle reads as striding along
+  a ground plane, and there isn't one when the path is mostly vertical — an
+  airborne hop carries that without looking like a slide.
 - `drag` plays while the user holds the character. It's the one action that
   doesn't fall back to `idle`: without a `drag` sheet, dragging keeps the
   older `walk`/`idle` behavior, because a frozen idle pose reads worse than
@@ -263,13 +341,13 @@ a real page. "Copy JSON" gives you the tuned fields to paste into
 
 ## Permissions
 
-| Permission            | Why |
-| --------------------- | --- |
-| `storage`             | Save settings and per-tab character choices. |
-| `unlimitedStorage`    | Store imported character sprite sheets locally. |
-| `activeTab`           | Read the active tab's URL in the popup for per-site rules. |
-| `scripting`           | Standard for the content overlay. |
-| `http://*`, `https://*` | Run the overlay on web pages. |
+| Permission              | Why                                                        |
+| ----------------------- | ---------------------------------------------------------- |
+| `storage`               | Save settings and per-tab character choices.               |
+| `unlimitedStorage`      | Store imported character sprite sheets locally.            |
+| `activeTab`             | Read the active tab's URL in the popup for per-site rules. |
+| `scripting`             | Standard for the content overlay.                          |
+| `http://*`, `https://*` | Run the overlay on web pages.                              |
 
 No background network access, no data collection.
 

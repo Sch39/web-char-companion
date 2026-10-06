@@ -118,6 +118,14 @@
       "frames": 10,
       "fps": 6,
       "loop": true
+    },
+    "sneak": {
+      "sheet": "sneak.png",
+      "columns": 6,
+      "rows": 2,
+      "frames": 10,
+      "fps": 4,
+      "loop": true
     }
   }
 }

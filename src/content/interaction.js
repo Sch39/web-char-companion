@@ -72,7 +72,75 @@
     }
 
     _handleFocusIn(e) {
-      if (this._isEditable(e.target)) this.behavior.onInputFocus(e.target);
+      if (!this._isEditable(e.target)) return;
+      this.behavior.onInputFocus(e.target, this._isSensitiveField(e.target));
+    }
+
+    /**
+     * Does this field look like it holds something private — a password,
+     * a card number, a one-time code? Decided from attributes and visible
+     * label text only; the field's value is never read.
+     *
+     * Checked in order of trustworthiness: an explicit `type=password`, then
+     * the standards-based `autocomplete` tokens that browsers and password
+     * managers already rely on, then the field's own human-readable text,
+     * and only last the class/id of the field and a few ancestors — markup
+     * names are the guessiest signal, so they use a deliberately narrow
+     * pattern (see WCC.SENSITIVE_MARKUP).
+     */
+    _isSensitiveField(el) {
+      if (
+        el.tagName === "INPUT" &&
+        (el.getAttribute("type") || "").toLowerCase() === "password"
+      ) {
+        return true;
+      }
+
+      const autocomplete = (el.getAttribute("autocomplete") || "").toLowerCase();
+      if (
+        autocomplete &&
+        WCC.SENSITIVE_AUTOCOMPLETE.some((token) => autocomplete.includes(token))
+      ) {
+        return true;
+      }
+
+      const ownText = [
+        el.getAttribute("name"),
+        el.getAttribute("id"),
+        el.getAttribute("placeholder"),
+        el.getAttribute("aria-label"),
+        this._labelTextFor(el),
+      ]
+        .filter(Boolean)
+        .join(" ");
+      if (WCC.SENSITIVE_TEXT.test(ownText)) return true;
+
+      let node = el;
+      for (let up = 0; up < WCC.CONFIG.sensitiveAncestorDepth && node; up++) {
+        // className is an SVGAnimatedString on SVG elements, not a string
+        const cls = typeof node.className === "string" ? node.className : "";
+        if (WCC.SENSITIVE_MARKUP.test(`${cls} ${node.id || ""}`)) return true;
+        node = node.parentElement;
+      }
+
+      return false;
+    }
+
+    /** Visible label text tied to a field, via `for=` or a wrapping <label>. */
+    _labelTextFor(el) {
+      const parts = [];
+      if (el.id) {
+        try {
+          const id = window.CSS?.escape ? CSS.escape(el.id) : el.id;
+          const labelled = document.querySelector(`label[for="${id}"]`);
+          if (labelled) parts.push(labelled.textContent || "");
+        } catch {
+          /* an id that can't be escaped into a selector — skip it */
+        }
+      }
+      const wrapping = el.closest?.("label");
+      if (wrapping) parts.push(wrapping.textContent || "");
+      return parts.join(" ");
     }
 
     _handleFocusOut(e) {

@@ -4,9 +4,9 @@
  * Moves the character on a visual plane (it doesn't follow the physical DOM
  * layout). Position is interpolated straight toward the target on both axes
  * at once, so travel can be diagonal — the walk cycle is swapped for "hop"
- * when that diagonal gets steep, since a horizontal stride looks like it's
- * sliding sideways otherwise. Returns a Promise that resolves on arrival or
- * cancel.
+ * when that diagonal gets steep, since a walk reads as striding along a
+ * ground plane and there isn't one when the path is mostly vertical.
+ * Returns a Promise that resolves on arrival or cancel.
  */
 (() => {
   "use strict";
@@ -47,6 +47,11 @@
         case "write": // perched at the bottom-left of the field being typed in
           raw = { x: rect.left + 20, y: rect.bottom + 4 };
           break;
+        case "sneak":
+          // Off past the far edge rather than leaning over the field like
+          // "write" does — the point of this one is keeping its distance.
+          raw = { x: rect.right + 16, y: rect.bottom + 4 };
+          break;
         default:
           raw = { x: rect.left + rect.width / 2, y: floor };
       }
@@ -59,12 +64,12 @@
       this.cancel();
       const speed = WCC.CONFIG.walkSpeed;
       const r = this.r;
-      // The regular walk cycle is a side-view horizontal stride; it reads as
-      // sliding sideways once the travel direction leans steeply up/down
-      // (e.g. heading to a target well above or below the current spot).
-      // Pick "hop" instead whenever the angle from horizontal is steep —
-      // decided once up front, not re-evaluated mid-trip, so the animation
-      // doesn't flicker between the two near the threshold.
+      // A walk cycle reads as striding along a ground plane, and there isn't
+      // one when the path leans steeply up or down (heading to a target well
+      // above or below the current spot) — the character just appears to
+      // slide. "hop" is airborne, so it works at any angle. Decided once up
+      // front, not re-evaluated mid-trip, so the animation doesn't flicker
+      // between the two near the threshold.
       const angleDeg =
         (Math.atan2(Math.abs(y - r.pos.y), Math.abs(x - r.pos.x)) * 180) /
         Math.PI;
