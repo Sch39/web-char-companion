@@ -61,7 +61,7 @@
       "rows": 2,
       "frames": 18,
       "fps": 6,
-      "loop": true
+      "loop": false
     },
     "watch": {
       "sheet": "watch.png",
@@ -109,7 +109,7 @@
       "rows": 2,
       "frames": 18,
       "fps": 8,
-      "loop": true
+      "loop": false
     },
     "drag": {
       "sheet": "drag.png",
@@ -125,6 +125,14 @@
       "rows": 2,
       "frames": 10,
       "fps": 4,
+      "loop": true
+    },
+    "alarm": {
+      "sheet": "alarm.png",
+      "columns": 6,
+      "rows": 2,
+      "frames": 12,
+      "fps": 12,
       "loop": true
     }
   }
