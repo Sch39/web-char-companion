@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Web Char Companion",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A character virtual companion that lives on top of web pages and reacts contextually to the DOM.",
   "icons": {
     "16": "icons/icon-16.png",
@@ -63,10 +63,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": [
-        "assets/chars/*/*.png",
-        "assets/chars/*/animation.json"
-      ],
+      "resources": ["assets/chars/*/*.png", "assets/chars/*/animation.json"],
       "matches": ["http://*/*", "https://*/*"]
     }
   ]
