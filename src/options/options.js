@@ -142,8 +142,102 @@ async function renderList() {
     : "No built-in characters are available — import one above.";
 }
 
+// --- alarm sound ------------------------------------------------------------
+
+const SOUND_KEY = window.WCC_ALARM.SOUND_KEY;
+
+// Audio goes to storage.local, never sync: a sync item caps out at 8 KB.
+const MAX_SOUND_BYTES = 2 * 1024 * 1024;
+
+let testAudio = null;
+
+function setSoundStatus(msg, kind) {
+  const el = $("soundStatus");
+  el.textContent = msg;
+  el.className = "status" + (kind ? " " + kind : "");
+}
+
+async function renderSound() {
+  const data = await chrome.storage.local.get(SOUND_KEY);
+  const custom = data[SOUND_KEY];
+  $("soundCurrent").textContent =
+    custom && custom.name
+      ? `Current: ${custom.name}`
+      : "Current: default (bundled)";
+}
+
+async function onSoundSave() {
+  try {
+    const file = $("soundFile").files[0];
+    if (!file) throw new Error("Choose an audio file first.");
+    if (file.size > MAX_SOUND_BYTES) {
+      const mb = (file.size / 1024 / 1024).toFixed(1);
+      throw new Error(`That file is ${mb} MB; the limit is 2 MB.`);
+    }
+    setSoundStatus("Saving…");
+    const dataUrl = await readDataUrl(file);
+    await chrome.storage.local.set({
+      [SOUND_KEY]: { name: file.name, dataUrl },
+    });
+    $("soundFile").value = "";
+    setSoundStatus(`Saved "${file.name}".`, "ok");
+    renderSound();
+  } catch (e) {
+    setSoundStatus(e.message || String(e), "err");
+  }
+}
+
+async function onSoundTest() {
+  if (testAudio) {
+    testAudio.pause();
+    testAudio = null;
+    return;
+  }
+  // Prefer whatever is sitting in the picker, so a file can be heard before
+  // it's saved.
+  const pending = $("soundFile").files[0];
+  let url;
+  if (pending) {
+    if (pending.size > MAX_SOUND_BYTES) {
+      setSoundStatus("That file is over the 2 MB limit.", "err");
+      return;
+    }
+    url = await readDataUrl(pending);
+  } else {
+    const data = await chrome.storage.local.get(SOUND_KEY);
+    const custom = data[SOUND_KEY];
+    url =
+      (custom && custom.dataUrl) ||
+      chrome.runtime.getURL("assets/sounds/alarm-default.wav");
+  }
+  const audio = new Audio(url);
+  testAudio = audio;
+  audio.addEventListener("ended", () => {
+    testAudio = null;
+  });
+  try {
+    await audio.play();
+    setSoundStatus("");
+  } catch {
+    testAudio = null;
+    setSoundStatus("Could not play that file.", "err");
+  }
+}
+
+async function onSoundReset() {
+  await chrome.storage.local.remove(SOUND_KEY);
+  $("soundFile").value = "";
+  setSoundStatus("Back to the bundled sound.", "ok");
+  renderSound();
+}
+
+$("soundSave").addEventListener("click", onSoundSave);
+$("soundTest").addEventListener("click", onSoundTest);
+$("soundReset").addEventListener("click", onSoundReset);
+
 $("import").addEventListener("click", onImport);
 $("openPreview").addEventListener("click", () => {
   window.open(chrome.runtime.getURL("src/debug/debug.html"), "_blank");
 });
 renderList();
+renderSound();

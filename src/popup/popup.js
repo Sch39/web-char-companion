@@ -41,6 +41,8 @@ let activeTabId = null;
 let currentHost = null;
 let globalChar = DEFAULT_SETTINGS.character;
 let runMode = "off"; // off | active | paused
+let alarmCfg = null; // kept out of wcc.settings on purpose, see saveAlarms()
+let previewAudio = null;
 
 // --- storage helpers --------------------------------------------------------
 
@@ -263,6 +265,224 @@ function onToggle() {
   }
 }
 
+// --- alarms -----------------------------------------------------------------
+//
+// Alarm data lives under its own storage key rather than inside wcc.settings,
+// because collectSettings() rebuilds that object from the form fields and would
+// drop anything without a matching input.
+
+const ALARM = window.WCC_ALARM;
+
+async function loadAlarms() {
+  const data = await chrome.storage.sync.get(ALARM.ALARMS_KEY);
+  alarmCfg = ALARM.normalize(data[ALARM.ALARMS_KEY]);
+  const sound = await chrome.storage.local.get(ALARM.SOUND_KEY);
+  const custom = sound[ALARM.SOUND_KEY];
+  $("alarmSoundName").textContent = custom && custom.name
+    ? custom.name
+    : "Default (bundled)";
+}
+
+async function saveAlarms() {
+  await chrome.storage.sync.set({ [ALARM.ALARMS_KEY]: alarmCfg });
+  renderAlarmHint();
+}
+
+function renderAlarms() {
+  const list = $("alarmList");
+  list.textContent = "";
+  for (const item of alarmCfg.items) {
+    list.appendChild(buildAlarmRow(item));
+  }
+  $("alarmEnabled").checked = alarmCfg.enabled;
+  $("alarmSoundOn").checked = alarmCfg.sound.on;
+  $("alarmVolume").value = Math.round(alarmCfg.sound.volume * 100);
+  renderAlarmHint();
+}
+
+function renderAlarmHint() {
+  const next = ALARM.nextFire(alarmCfg);
+  if (!alarmCfg.enabled || !next) {
+    $("alarmHint").textContent = "";
+    $("alarmNotifyWarn").hidden = true;
+    return;
+  }
+  const mins = Math.max(0, Math.round((next.when - Date.now()) / 60000));
+  const rel = mins < 1 ? "under a minute" : mins < 60 ? mins + " min" : null;
+  $("alarmHint").textContent = rel
+    ? "Next: " + ALARM.formatTime(next.item.time) + " (in " + rel + ")."
+    : "Next: " + ALARM.formatTime(next.item.time) + ".";
+  renderNotifyWarning();
+}
+
+// Without notification access an alarm firing while the browser is in the
+// background has no way to reach the user, so say so rather than letting it
+// fail quietly.
+function renderNotifyWarning() {
+  const warn = $("alarmNotifyWarn");
+  if (!warn) return;
+  try {
+    chrome.permissions.contains({ permissions: ["notifications"] }, (has) => {
+      warn.hidden = !!has || !alarmCfg.enabled;
+    });
+  } catch {
+    warn.hidden = true;
+  }
+}
+
+async function onNotifyWarnClick() {
+  try {
+    chrome.permissions.request({ permissions: ["notifications"] }, () => {
+      void chrome.runtime.lastError;
+      renderNotifyWarning();
+    });
+  } catch {
+    /* permissions API unavailable */
+  }
+}
+
+function buildAlarmRow(item) {
+  const row = document.createElement("div");
+  row.className = "alarm-row" + (item.on ? "" : " off");
+
+  const on = document.createElement("input");
+  on.type = "checkbox";
+  on.checked = item.on;
+  on.title = "Enable this alarm";
+  on.addEventListener("change", () => {
+    item.on = on.checked;
+    item.snoozeUntil = 0;
+    row.classList.toggle("off", !item.on);
+    saveAlarms();
+  });
+
+  // step=1 makes the browser expose a seconds field, which these times use.
+  const time = document.createElement("input");
+  time.type = "time";
+  time.step = "1";
+  time.value = item.time;
+  time.addEventListener("change", () => {
+    const normalized = ALARM.normalizeTime(time.value);
+    if (!normalized) {
+      time.value = item.time;
+      return;
+    }
+    item.time = normalized;
+    item.snoozeUntil = 0;
+    saveAlarms();
+  });
+
+  const repeat = document.createElement("select");
+  const options = [["daily", "Daily"], ["once", "Once"]];
+  for (const pair of options) {
+    const opt = document.createElement("option");
+    opt.value = pair[0];
+    opt.textContent = pair[1];
+    repeat.appendChild(opt);
+  }
+  repeat.value = item.repeat;
+  repeat.addEventListener("change", () => {
+    item.repeat = repeat.value;
+    saveAlarms();
+  });
+
+  const remove = document.createElement("button");
+  remove.type = "button";
+  remove.className = "remove";
+  remove.textContent = "\u00d7";
+  remove.title = "Remove";
+  remove.addEventListener("click", () => {
+    alarmCfg.items = alarmCfg.items.filter((it) => it.id !== item.id);
+    renderAlarms();
+    saveAlarms();
+  });
+
+  const labelWrap = document.createElement("div");
+  labelWrap.className = "alarm-row-label";
+  const label = document.createElement("input");
+  label.type = "text";
+  label.placeholder = "Label (optional)";
+  label.maxLength = 60;
+  label.value = item.label;
+  label.addEventListener("change", () => {
+    item.label = label.value.trim();
+    saveAlarms();
+  });
+  labelWrap.appendChild(label);
+
+  row.append(on, time, repeat, remove, labelWrap);
+  return row;
+}
+
+function onAlarmAdd() {
+  // Seed a minute ahead so a freshly added row isn't already in the past.
+  const d = new Date(Date.now() + 60000);
+  const pad = (n) => String(n).padStart(2, "0");
+  alarmCfg.items.push({
+    id: ALARM.newId(),
+    time: pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":00",
+    label: "",
+    repeat: "daily",
+    on: true,
+    snoozeUntil: 0,
+  });
+  renderAlarms();
+  saveAlarms();
+}
+
+async function onAlarmMasterChange() {
+  alarmCfg.enabled = $("alarmEnabled").checked;
+  // The OS notification is only a fallback for when no tab can show the
+  // bubble, so the permission is asked for here rather than at install time.
+  if (alarmCfg.enabled) requestNotificationPermission();
+  await saveAlarms();
+}
+
+function requestNotificationPermission() {
+  try {
+    chrome.permissions.contains({ permissions: ["notifications"] }, (has) => {
+      if (has) return;
+      chrome.permissions.request({ permissions: ["notifications"] }, () => {
+        // Declining is fine: a visible tab still shows the bubble.
+        void chrome.runtime.lastError;
+      });
+    });
+  } catch {
+    /* permissions API unavailable */
+  }
+}
+
+async function onAlarmSoundChange() {
+  alarmCfg.sound.on = $("alarmSoundOn").checked;
+  alarmCfg.sound.volume = Number($("alarmVolume").value) / 100;
+  await saveAlarms();
+}
+
+async function onAlarmPreview() {
+  if (previewAudio) {
+    previewAudio.pause();
+    previewAudio = null;
+    return;
+  }
+  const data = await chrome.storage.local.get(ALARM.SOUND_KEY);
+  const custom = data[ALARM.SOUND_KEY];
+  const url =
+    (custom && custom.dataUrl) ||
+    chrome.runtime.getURL("assets/sounds/alarm-default.wav");
+  const audio = new Audio(url);
+  audio.volume = Number($("alarmVolume").value) / 100;
+  previewAudio = audio;
+  audio.addEventListener("ended", () => {
+    previewAudio = null;
+  });
+  try {
+    await audio.play();
+  } catch {
+    previewAudio = null;
+    $("alarmHint").textContent = "Could not play the sound file.";
+  }
+}
+
 // --- wiring -----------------------------------------------------------------
 
 function bind() {
@@ -283,6 +503,15 @@ function bind() {
   for (const id of globalInputs) {
     $(id).addEventListener("change", saveSettingsAndReload);
   }
+  $("alarmEnabled").addEventListener("change", onAlarmMasterChange);
+  $("alarmAdd").addEventListener("click", onAlarmAdd);
+  $("alarmSoundOn").addEventListener("change", onAlarmSoundChange);
+  $("alarmVolume").addEventListener("change", onAlarmSoundChange);
+  $("alarmPreview").addEventListener("click", onAlarmPreview);
+  $("alarmNotifyWarn").addEventListener("click", onNotifyWarnClick);
+  $("alarmSoundManage").addEventListener("click", () =>
+    chrome.runtime.openOptionsPage(),
+  );
   $("character").addEventListener("change", onCharacterChange);
   $("perTab").addEventListener("change", onPerTabChange);
   $("site-rule").addEventListener("change", (e) => saveSiteRule(e.target.value));
@@ -292,5 +521,7 @@ function bind() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   await load();
+  await loadAlarms();
+  renderAlarms();
   bind();
 });

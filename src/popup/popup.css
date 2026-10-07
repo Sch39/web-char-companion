@@ -65,6 +65,24 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent);
 .group legend { color: var(--muted); padding: 0 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
 .check { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
 .hint { margin: 2px 0 6px; font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+.notify-warn {
+  display: block;
+  width: 100%;
+  margin: 0 0 6px;
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: left;
+  color: var(--accent-2);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.notify-warn:hover { border-color: var(--accent-2); }
+.notify-warn[hidden] { display: none; }
 textarea {
   width: 100%;
   resize: vertical;
@@ -140,3 +158,100 @@ textarea:focus { outline: none; border-color: var(--accent); }
   text-decoration: underline;
 }
 .link:hover { color: var(--text); }
+
+/* --- alarm ---------------------------------------------------------------- */
+
+.group.alarm legend { color: var(--accent-2); }
+.check.master { padding-bottom: 6px; border-bottom: 1px solid var(--border); margin-bottom: 6px; }
+
+.alarm-list:empty::after {
+  content: "No alarms yet.";
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  padding: 2px 0 6px;
+}
+
+.alarm-row {
+  display: grid;
+  grid-template-columns: 16px 1fr auto 22px;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 0;
+}
+.alarm-row + .alarm-row { border-top: 1px dashed var(--border); }
+.alarm-row input[type="time"] {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 3px 4px;
+  font: 12px "Segoe UI", system-ui, sans-serif;
+  width: 100%;
+}
+.alarm-row input[type="time"]:focus { outline: none; border-color: var(--accent); }
+.alarm-row select { padding: 3px 4px; font-size: 11px; }
+.alarm-row .remove {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+.alarm-row .remove:hover { color: var(--accent); }
+/* The label spans the full row width on its own line below the time. */
+.alarm-row-label { grid-column: 2 / -1; }
+.alarm-row-label input {
+  width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 3px 6px;
+  font-size: 11px;
+}
+.alarm-row-label input:focus { outline: none; border-color: var(--accent); }
+.alarm-row.off input[type="time"],
+.alarm-row.off .alarm-row-label input { opacity: .5; }
+
+.btn.small {
+  width: auto;
+  padding: 3px 10px;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.alarm-sound {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+.icon-btn {
+  margin-left: auto;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 10px;
+  line-height: 1;
+  padding: 3px 7px;
+  cursor: pointer;
+}
+.icon-btn:hover { border-color: var(--accent-2); }
+.volume {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+.volume span { font-size: 11px; color: var(--muted); flex: none; }
+.volume input[type="range"] { flex: 1; accent-color: var(--accent-2); height: 14px; }
+.alarm-sound-name {
+  font-size: 11px;
+  color: var(--muted);
+  word-break: break-all;
+}
+.group.alarm .link { margin-top: 2px; text-align: left; }
+.group.alarm .hint:empty { display: none; }

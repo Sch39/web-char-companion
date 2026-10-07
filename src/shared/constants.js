@@ -16,6 +16,7 @@
   WCC.STORAGE_KEYS = {
     SETTINGS: "wcc.settings",
     SITE_RULES: "wcc.siteRules",
+    ALARMS: "wcc.alarms",
   };
 
   // Default settings
@@ -160,6 +161,7 @@
     PERFORM_ACTION: "PERFORM_ACTION",
     WRITE: "WRITE",
     SNEAK: "SNEAK", // tiptoeing past a sensitive field instead of writing
+    ALARM: "ALARM", // holding still while an alarm bubble is up
     DROWSY: "DROWSY", // the brief yawn that leads into SLEEP
     SLEEP: "SLEEP",
   };

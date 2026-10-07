@@ -93,6 +93,12 @@
       this.sprite.className = "wcc-sprite";
       this.container.appendChild(this.sprite);
 
+      // Lives inside .wcc-char so it rides along with the character's
+      // transform instead of needing its own positioning pass.
+      this.bubble = document.createElement("div");
+      this.bubble.className = "wcc-bubble hidden";
+      this.container.appendChild(this.bubble);
+
       this.shadow.appendChild(this.container);
       (document.body || document.documentElement).appendChild(this.host);
       this._applyTransform();
@@ -119,8 +125,85 @@
           background-repeat: no-repeat;
           transform-origin: center bottom;
         }
+
+        /* Everything below is self-declared: :host{all:initial} means nothing,
+           not even a font, is inherited from the page. */
+        .wcc-bubble {
+          position: absolute;
+          left: 50%;
+          bottom: calc(100% + 12px);
+          transform: translateX(-50%);
+          box-sizing: border-box;
+          min-width: 150px;
+          max-width: 260px;
+          padding: 10px 12px;
+          background: #251c1f;
+          color: #f3ebe8;
+          border: 1px solid #3a2d30;
+          border-left: 3px solid #d9a441;
+          border-radius: 10px;
+          box-shadow: 0 6px 20px rgba(0,0,0,.45);
+          font: 13px/1.45 "Segoe UI", system-ui, sans-serif;
+          text-align: left;
+          pointer-events: auto;
+          transition: opacity .2s ease;
+        }
+        .wcc-bubble.hidden { opacity: 0; pointer-events: none; }
+        /* Flipped below the character when there's no headroom above. */
+        .wcc-bubble.below { bottom: auto; top: calc(100% + 12px); }
+        .wcc-bubble::after {
+          content: "";
+          position: absolute;
+          left: 50%;
+          margin-left: -6px;
+          border: 6px solid transparent;
+          border-top-color: #251c1f;
+          top: 100%;
+        }
+        .wcc-bubble.below::after {
+          top: auto;
+          bottom: 100%;
+          border-top-color: transparent;
+          border-bottom-color: #251c1f;
+        }
+        .wcc-bubble-label {
+          font-weight: 600;
+          margin-bottom: 2px;
+          overflow-wrap: break-word;
+        }
+        .wcc-bubble-time {
+          font-size: 12px;
+          color: #a99a94;
+          font-variant-numeric: tabular-nums;
+        }
+        .wcc-bubble-note {
+          margin-top: 6px;
+          font-size: 11px;
+          color: #d9a441;
+        }
+        .wcc-bubble-actions {
+          display: flex;
+          gap: 6px;
+          margin-top: 10px;
+        }
+        .wcc-bubble-btn {
+          flex: 1;
+          padding: 5px 8px;
+          font: 12px "Segoe UI", system-ui, sans-serif;
+          color: #f3ebe8;
+          background: #1c1517;
+          border: 1px solid #3a2d30;
+          border-radius: 6px;
+          cursor: pointer;
+          box-sizing: border-box;
+        }
+        .wcc-bubble-btn:hover { border-color: #b23b3b; }
+        .wcc-bubble-btn.primary { background: #b23b3b; border-color: #b23b3b; }
+        .wcc-bubble-btn.primary:hover { background: #c94747; }
+
         @media (prefers-reduced-motion: reduce) {
           .wcc-char { transition: none; }
+          .wcc-bubble { transition: none; }
         }
       `;
     }
@@ -151,6 +234,74 @@
       if (dir !== "left" && dir !== "right") return;
       this.facing = dir;
       this._drawFrame();
+    }
+
+    /**
+     * Show a speech bubble above the character.
+     *
+     * `actions` are [{ label, primary, onClick }]. Text is assigned through
+     * textContent, never innerHTML — the label comes from user input.
+     */
+    showBubble({ label, time, note, actions = [] }) {
+      if (!this.bubble) return;
+      this.bubble.textContent = "";
+
+      if (label) {
+        const el = document.createElement("div");
+        el.className = "wcc-bubble-label";
+        el.textContent = label;
+        this.bubble.appendChild(el);
+      }
+      if (time) {
+        const el = document.createElement("div");
+        el.className = "wcc-bubble-time";
+        el.textContent = time;
+        this.bubble.appendChild(el);
+      }
+      if (note) {
+        const el = document.createElement("div");
+        el.className = "wcc-bubble-note";
+        el.textContent = note;
+        this.bubble.appendChild(el);
+      }
+      if (actions.length) {
+        const row = document.createElement("div");
+        row.className = "wcc-bubble-actions";
+        for (const action of actions) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className =
+            "wcc-bubble-btn" + (action.primary ? " primary" : "");
+          btn.textContent = action.label;
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            action.onClick?.();
+          });
+          row.appendChild(btn);
+        }
+        this.bubble.appendChild(row);
+      }
+
+      this.bubble.classList.remove("hidden");
+      this._placeBubble();
+    }
+
+    hideBubble() {
+      if (!this.bubble) return;
+      this.bubble.classList.add("hidden");
+      this.bubble.textContent = "";
+    }
+
+    get bubbleVisible() {
+      return !!this.bubble && !this.bubble.classList.contains("hidden");
+    }
+
+    /** Flip the bubble below the character when it would run off the top. */
+    _placeBubble() {
+      if (!this.bubble) return;
+      const headY = this.pos.y - this.size.h;
+      const needed = this.bubble.offsetHeight + 16;
+      this.bubble.classList.toggle("below", headY - needed < 0);
     }
 
     /** Character foot position (bottom-center) in viewport coordinates. */

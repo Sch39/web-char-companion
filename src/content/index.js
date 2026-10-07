@@ -183,11 +183,13 @@
       behavior,
       getSettings,
     });
+    const alarm = new WCC.AlarmPresenter({ renderer, movement, behavior });
 
     videoWatcher.start();
     scanner.start();
     interaction.start();
     behavior.start();
+    alarm.start();
 
     // Respect prefers-reduced-motion
     if (
@@ -206,6 +208,7 @@
       movement,
       behavior,
       interaction,
+      alarm,
       savePosition,
     };
     WCC.log("companion active on", location.hostname);
@@ -222,6 +225,7 @@
     m.scanner.stop();
     m.videoWatcher.stop();
     m.interaction.stop();
+    m.alarm?.stop();
     m.renderer.destroy();
     app.modules = null;
   }
@@ -259,6 +263,11 @@
 
   // Messages from the popup / service worker
   chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+    // Broadcasts reach every extension context, this one included. Answering
+    // something addressed elsewhere would make us win the race against the
+    // intended recipient, since sendMessage resolves on the first reply.
+    if (msg?.target && msg.target !== "wcc-content") return;
+
     const m = app.modules;
     switch (msg?.type) {
       case "WCC_PAUSE":
@@ -285,9 +294,12 @@
       case "WCC_PING":
         sendResponse({ active: !!m });
         return true;
+      default:
+        // Not ours: leave the channel open for whoever it belongs to.
+        return;
     }
     sendResponse?.({ ok: true });
-    return true;
+    return false;
   });
 
   boot();

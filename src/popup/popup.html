@@ -70,6 +70,34 @@
         <input type="checkbox" id="reduceMotion" />
       </label>
 
+      <fieldset class="group alarm">
+        <legend>Alarm</legend>
+        <label class="check master">
+          <input type="checkbox" id="alarmEnabled" /> Enable alarms
+        </label>
+
+        <div id="alarmList" class="alarm-list"></div>
+        <button id="alarmAdd" class="btn small">+ Add time</button>
+
+        <div class="alarm-sound">
+          <label class="check">
+            <input type="checkbox" id="alarmSoundOn" /> Sound
+            <button id="alarmPreview" class="icon-btn" type="button" title="Preview sound">&#9654;</button>
+          </label>
+          <label class="volume">
+            <span>Volume</span>
+            <input type="range" id="alarmVolume" min="0" max="100" step="5" />
+          </label>
+          <div class="alarm-sound-name" id="alarmSoundName">Default</div>
+          <button id="alarmSoundManage" class="link">Change sound…</button>
+        </div>
+        <p class="hint" id="alarmHint"></p>
+        <button id="alarmNotifyWarn" class="notify-warn" hidden>
+          Alarms can't notify you while the browser is in the background.
+          Click to allow notifications.
+        </button>
+      </fieldset>
+
       <div class="site">
         <div class="site-host" id="site-host">—</div>
         <select id="site-rule">
@@ -98,6 +126,7 @@
     </main>
 
     <script src="../shared/builtin-characters.js"></script>
+    <script src="../shared/alarm-schedule.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>

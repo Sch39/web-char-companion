@@ -50,6 +50,32 @@
       </section>
 
       <section class="card">
+        <h2>Alarm sound</h2>
+        <p class="hint">
+          Played when an alarm goes off. The file is stored in your browser
+          only. Leave this empty to use the bundled sound.
+        </p>
+
+        <p class="current" id="soundCurrent">Current: default (bundled)</p>
+
+        <label class="field">
+          <span>Custom sound (mp3, ogg or wav, max 2 MB)</span>
+          <input
+            type="file"
+            id="soundFile"
+            accept="audio/mpeg,audio/ogg,audio/wav,.mp3,.ogg,.wav"
+          />
+        </label>
+
+        <div class="btn-row">
+          <button id="soundSave" class="btn primary">Save sound</button>
+          <button id="soundTest" class="btn">Test</button>
+          <button id="soundReset" class="btn">Reset to default</button>
+        </div>
+        <p id="soundStatus" class="status" role="status"></p>
+      </section>
+
+      <section class="card">
         <h2>Animation preview</h2>
         <p class="hint">
           Tune a character's per-animation scale and offset, and watch for a
@@ -60,6 +86,7 @@
     </main>
 
     <script src="../shared/builtin-characters.js"></script>
+    <script src="../shared/alarm-schedule.js"></script>
     <script src="options.js"></script>
   </body>
 </html>

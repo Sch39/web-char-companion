@@ -27,6 +27,16 @@ The full clip: [demo/demo.mp4](demo/demo.mp4) (57 seconds, 3.6 MB).
   actually _playing_ (including inside an embedded YouTube/Vimeo-style
   iframe) heavily favors a dedicated "watching a film" reaction over the
   usual random picks.
+- **Alarms** — set any number of times (to the second) and the character comes
+  over with a speech bubble when one is due, plays its `alarm` animation and
+  rings a sound you can replace with your own file. The sound is played by the
+  extension rather than by the page, so it rings even when you haven't clicked
+  that tab yet, when the tab is muted, or when you're looking at another one.
+  The list is shared across tabs, but only the tab you're actually looking at
+  shows the bubble — so the alarm is also raised as a system notification with
+  Snooze and Dismiss buttons, which is what reaches you when the browser sits
+  behind another application. That notification retracts itself if a tab does
+  show the bubble.
 - **Interactive** — click it for a quick reaction, or drag it anywhere; it stays
   where you drop it, then resumes on its own.
 - **Stays out of the way** — pause anytime, keep it clear of fixed/sticky site
@@ -122,6 +132,7 @@ Click the extension icon to open the settings popup.
 | Activity       | How often it moves (Low / Medium / High).                                                                                     |
 | Page reactions | Toggle read / look / sit / sleep / take-notes / watch-videos / react-when-dragged / tiptoe-past-password-fields individually. |
 | Reduce motion  | Keep it still (also honored automatically via the OS setting).                                                                |
+| Alarm          | Enable alarms, add/remove times (Daily or Once, with an optional label), toggle the sound and set its volume.                  |
 | Site rule      | Default (auto) / Always on here / Disable here, per domain.                                                                   |
 | Auto-disable   | Keywords that hide the companion when the URL contains them.                                                                  |
 
@@ -134,17 +145,20 @@ web-char-companion/
 ├── manifest.json              # MV3 manifest: permissions, scripts, popup, options
 ├── icons/                     # extension icons
 ├── assets/
-│   └── chars/
-│       ├── animation.schema.json  # JSON schema for editor autocomplete
-│       └── luna/               # default character (original art)
-│           ├── idle.png        # one sprite sheet per action
-│           ├── walk.png
-│           ├── …
-│           └── animation.json
+│   ├── chars/
+│   │   ├── animation.schema.json  # JSON schema for editor autocomplete
+│   │   └── luna/               # default character (original art)
+│   │       ├── idle.png        # one sprite sheet per action
+│   │       ├── walk.png
+│   │       ├── …
+│   │       └── animation.json
+│   └── sounds/
+│       └── alarm-default.wav   # bundled alarm chime (original)
 └── src/
     ├── shared/
     │   ├── constants.js        # shared namespace, defaults, tuning
     │   ├── character-loader.js # resolves a character id to render data
+    │   ├── alarm-schedule.js   # alarm list parsing + next-fire math
     │   └── builtin-characters.js  # list of bundled characters
     ├── content/                # runs on the page (load order set in manifest)
     │   ├── renderer.js          # Shadow DOM overlay + sprite animation
@@ -155,9 +169,13 @@ web-char-companion/
     │   ├── movement-engine.js   # walks to a target on a visual plane
     │   ├── behavior-engine.js   # state machine (idle → move → act → idle)
     │   ├── interaction.js       # click, drag, scroll, typing reactions
+    │   ├── alarm.js             # alarm bubble, active-tab handoff
     │   └── index.js             # bootstrap, boot sequencing, SPA navigation
     ├── background/
-    │   └── service-worker.js   # defaults, per-tab character storage
+    │   └── service-worker.js   # defaults, per-tab storage, alarm scheduling + sound
+    ├── offscreen/
+    │   ├── audio.html          # hidden document that owns alarm playback
+    │   └── audio.js
     ├── popup/                  # quick settings UI
     │   ├── popup.html
     │   ├── popup.css
@@ -362,6 +380,9 @@ a real page. "Copy JSON" gives you the tuned fields to paste into
 | `storage`               | Save settings and per-tab character choices.               |
 | `unlimitedStorage`      | Store imported character sprite sheets locally.            |
 | `activeTab`             | Read the active tab's URL in the popup for per-site rules. |
+| `alarms`                | Wake the extension when an alarm time is due.              |
+| `offscreen`             | Play the alarm sound from the extension itself, so it isn't silenced by the page's autoplay rules. |
+| `notifications`         | Optional, asked for when you enable alarms: shows the alarm (with Snooze / Dismiss buttons) so it reaches you while the browser is in the background. |
 | `http://*`, `https://*` | Content script match pattern: run the overlay on web pages. |
 
 No background network access, no data collection.
@@ -396,10 +417,11 @@ The archive is built with `git archive`, so it contains committed files only;
 
 ## Assets & attribution
 
-The bundled character (`luna`) is original artwork, covered by the project
-license. No third-party character art ships with the extension. See
+The bundled character (`luna`) is original artwork, and the default alarm chime
+is a tone generated for this project — both covered by the project license. No
+third-party art or audio ships with the extension. See
 [`NOTICE.md`](NOTICE.md), and make sure you have the rights to any character
-art you add or distribute yourself.
+art or sound you add or distribute yourself.
 
 ## License
 

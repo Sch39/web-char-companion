@@ -15,6 +15,13 @@ holder; it has been removed, and the character list no longer references it.
 
 All trademarks and character rights belong to their respective owners.
 
+## Bundled sound
+
+**`assets/sounds/alarm-default.wav`** — the default alarm chime. A plain
+two-note tone generated from scratch for this project (sine partials with an
+exponential decay), not sampled or derived from any existing recording;
+covered by the project license.
+
 ## Bringing your own characters
 
 The extension can import characters you supply (see the Options page). Make sure

@@ -102,6 +102,10 @@
         "surprised": {
           "description": "The other reaction picked at random when the user clicks the character.",
           "allOf": [{ "$ref": "#/$defs/animation" }]
+        },
+        "alarm": {
+          "description": "Plays when an alarm goes off, while the dialog bubble is on screen. The character holds this pose in place until the alarm is dismissed or snoozed, so a looping sheet reads best. Falls back to `surprised`, then `happy`, then `look` when absent.",
+          "allOf": [{ "$ref": "#/$defs/animation" }]
         }
       },
       "additionalProperties": false

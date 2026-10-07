@@ -9,7 +9,14 @@
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
   },
-  "permissions": ["storage", "unlimitedStorage", "activeTab"],
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "activeTab",
+    "alarms",
+    "offscreen"
+  ],
+  "optional_permissions": ["notifications"],
   "background": {
     "service_worker": "src/background/service-worker.js",
     "type": "module"
@@ -34,6 +41,7 @@
       "run_at": "document_idle",
       "js": [
         "src/shared/constants.js",
+        "src/shared/alarm-schedule.js",
         "src/shared/character-loader.js",
         "src/content/renderer.js",
         "src/content/video-watcher.js",
@@ -42,6 +50,7 @@
         "src/content/movement-engine.js",
         "src/content/behavior-engine.js",
         "src/content/interaction.js",
+        "src/content/alarm.js",
         "src/content/index.js"
       ]
     },
@@ -54,7 +63,10 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["assets/chars/*/*.png", "assets/chars/*/animation.json"],
+      "resources": [
+        "assets/chars/*/*.png",
+        "assets/chars/*/animation.json"
+      ],
       "matches": ["http://*/*", "https://*/*"]
     }
   ]

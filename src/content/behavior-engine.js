@@ -15,6 +15,7 @@
       this._timer = null;
       this._activeTarget = null;
       this._focusEl = null; // input element currently being reacted to
+      this._alarmHold = false; // an alarm bubble is on screen
     }
 
     start() {
@@ -27,6 +28,7 @@
     pause() {
       this.paused = true;
       this._focusEl = null;
+      this._alarmHold = false;
       this._clearTimer();
       this.move.cancel();
       this.r.play("idle");
@@ -43,6 +45,7 @@
     stop() {
       this.running = false;
       this._focusEl = null;
+      this._alarmHold = false;
       this._clearTimer();
       this.move.cancel();
     }
@@ -53,7 +56,7 @@
     }
 
     _scheduleIdle(overrideMs) {
-      if (!this.running || this.paused) return;
+      if (!this.running || this.paused || this._alarmHold) return;
       this.state = WCC.STATE.IDLE;
       this.r.play("idle");
       const p = this._profile();
@@ -64,7 +67,7 @@
     }
 
     async _tick() {
-      if (!this.running || this.paused) return;
+      if (!this.running || this.paused || this._alarmHold) return;
       const settings = this.getSettings();
 
       // chance to sleep, if enabled
@@ -93,6 +96,7 @@
       const anchor = this.move.anchorFor(action, target.rect);
       const result = await this.move.walkTo(anchor.x, anchor.y);
       if (result === "cancelled" || !this.running || this.paused) return;
+      if (this._alarmHold) return;
 
       // PERFORM_ACTION
       this._faceElement(target.el);
@@ -177,7 +181,7 @@
      * @param {boolean} [sensitive] from interaction.js's _isSensitiveField
      */
     onInputFocus(el, sensitive = false) {
-      if (!this.running || this.paused) return;
+      if (!this.running || this.paused || this._alarmHold) return;
       const b = this.getSettings().behaviors || {};
       if (sensitive ? b.reactToSensitive === false : b.reactToInput === false) {
         return;
@@ -197,6 +201,42 @@
       this.state = action === "sneak" ? WCC.STATE.SNEAK : WCC.STATE.WRITE;
       this.r.play(action); // falls back to idle until that sheet exists
       WCC.log(`reaction: ${action} at`, el.tagName.toLowerCase());
+    }
+
+    /**
+     * An alarm is showing: hold still underneath the bubble.
+     *
+     * `_alarmHold` makes the in-flight `_tick`/`_perform` continuation bail out
+     * when it resumes, instead of walking off mid-alarm. The pending timer is
+     * deliberately left alone — `_perform` awaits on that same handle, and
+     * clearing it would strand the promise and kill the loop for good.
+     */
+    onAlarmStart(action) {
+      this._alarmHold = true;
+      this._focusEl = null;
+      this.move.cancel();
+      this.state = WCC.STATE.ALARM;
+      if (action) this.r.play(action);
+      else this._playAlarmFallback();
+    }
+
+    /** No `alarm` sheet: anything visible beats a frozen idle pose. */
+    _playAlarmFallback() {
+      for (const name of ["surprised", "happy", "look"]) {
+        if (this.r.has(name)) {
+          this.r.play(name);
+          return;
+        }
+      }
+      this.r.play("idle");
+    }
+
+    /** Alarm dismissed — this owns restarting the idle loop. */
+    onAlarmEnd() {
+      if (!this._alarmHold) return;
+      this._alarmHold = false;
+      if (!this.running || this.paused) return;
+      this._scheduleIdle(900);
     }
 
     onInputBlur(el) {
