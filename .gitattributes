@@ -6,3 +6,6 @@
 
 # The demo clip is documentation, not part of the extension.
 /demo          export-ignore
+
+# Release tooling isn't part of the extension package.
+/scripts       export-ignore

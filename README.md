@@ -413,6 +413,38 @@ git push origin v0.2.0
 The archive is built with `git archive`, so it contains committed files only;
 `.gitattributes` lists what to leave out of it.
 
+### Publishing to Microsoft Edge Add-ons
+
+The same tag push also uploads the archive to the Edge Add-ons store and sends
+it for certification, once the repository is configured for it. Set the
+repository variable `EDGE_PUBLISH` to `true`, and add three secrets:
+
+| Secret | Where to find it |
+| --- | --- |
+| `EDGE_PRODUCT_ID` | Partner Center → Microsoft Edge → Overview → the extension; also the GUID in the address bar |
+| `EDGE_CLIENT_ID` | Partner Center → Publish API |
+| `EDGE_API_KEY` | Partner Center → Publish API (shown only when created) |
+
+Without the variable the step is skipped, so the GitHub release still works on
+a fork or before the credentials exist.
+
+The store API can only update an extension that has already been published
+manually at least once — the first submission, and later changes to the store
+listing itself (description, screenshots, pricing), still go through Partner
+Center.
+
+To run it by hand against a zip you already built:
+
+```sh
+export EDGE_PRODUCT_ID=... EDGE_CLIENT_ID=... EDGE_API_KEY=...
+node scripts/publish-edge.mjs web-char-companion-0.2.1.zip --notes "v0.2.1"
+```
+
+Pass `--no-publish` to upload the package and leave the draft in Partner Center
+for review instead of submitting it. The script waits for both the upload and
+the publish to finish and exits non-zero if either is rejected, reporting the
+validation errors the store returned.
+
 ---
 
 ## Assets & attribution

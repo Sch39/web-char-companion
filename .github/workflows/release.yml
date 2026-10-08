@@ -40,3 +40,16 @@ jobs:
             "web-char-companion-$version.zip" \
             --title "$GITHUB_REF_NAME" \
             --generate-notes
+
+      # Skipped wherever the secrets aren't set (forks, for instance), so the
+      # GitHub release above still works on its own.
+      - name: Upload to Microsoft Edge Add-ons
+        if: ${{ vars.EDGE_PUBLISH == 'true' }}
+        env:
+          EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+        run: |
+          node scripts/publish-edge.mjs \
+            "web-char-companion-$version.zip" \
+            --notes "$GITHUB_REF_NAME"
