@@ -93,11 +93,19 @@ every playing video.
 
 ---
 
-## Installation (load unpacked)
+## Installation
 
-The extension isn't on the Chrome Web Store, so it's installed unpacked. That
-is the only supported route — a `.crx` dropped onto `chrome://extensions` is
-blocked by Chrome outside the store, so none is published here.
+### Microsoft Edge
+
+Install straight from the Edge Add-ons store:
+[Web Char Companion](https://microsoftedge.microsoft.com/addons/detail/web-char-companion/oedfhlenamfpojebimoipkddafoeealj).
+
+### Chrome / other Chromium browsers (load unpacked)
+
+The extension isn't on the Chrome Web Store, so on Chrome it's installed
+unpacked. That is the only supported route there — a `.crx` dropped onto
+`chrome://extensions` is blocked by Chrome outside the store, so none is
+published here.
 
 1. Grab `web-char-companion-<version>.zip` from the
    [latest release](../../releases/latest) and unzip it, or clone this
