@@ -1,0 +1,139 @@
+{
+  "$schema": "../animation.schema.json",
+  "id": "maya",
+  "displayName": "Maya",
+
+  "//sprite": "Default cell size. Every sheet here declares its own columns/rows/frames because the grids differ per action.",
+  "sprite": {
+    "frameWidth": 256,
+    "frameHeight": 256
+  },
+
+  "renderScale": 0.5,
+  "defaultFacing": "right",
+
+  "//idleFootGap": "Not measured yet — set this once idle.png's baseline has been checked with the animation preview page, otherwise 'sit' will float above its target.",
+
+  "animations": {
+    "idle": {
+      "sheet": "idle.png",
+      "columns": 4,
+      "rows": 2,
+      "frames": 8,
+      "fps": 10,
+      "loop": true
+    },
+    "walk": {
+      "sheet": "walking.png",
+      "columns": 4,
+      "rows": 2,
+      "frames": 8,
+      "fps": 14,
+      "loop": true
+    },
+    "hop": {
+      "sheet": "hop.png",
+      "columns": 4,
+      "rows": 2,
+      "frames": 8,
+      "fps": 10,
+      "loop": true
+    },
+    "read": {
+      "sheet": "read.png",
+      "columns": 5,
+      "rows": 2,
+      "frames": 10,
+      "fps": 6,
+      "loop": false
+    },
+    "look": {
+      "sheet": "look.png",
+      "columns": 5,
+      "rows": 2,
+      "frames": 10,
+      "fps": 6,
+      "loop": false
+    },
+    "sit": {
+      "sheet": "sit.png",
+      "columns": 7,
+      "rows": 2,
+      "frames": 14,
+      "fps": 6,
+      "loop": true
+    },
+    "watch": {
+      "sheet": "watch.png",
+      "columns": 7,
+      "rows": 2,
+      "frames": 14,
+      "fps": 8,
+      "loop": true
+    },
+    "happy": {
+      "sheet": "happy.png",
+      "columns": 7,
+      "rows": 2,
+      "frames": 14,
+      "fps": 8,
+      "loop": true
+    },
+    "surprised": {
+      "sheet": "surprised.png",
+      "columns": 15,
+      "rows": 1,
+      "frames": 15,
+      "fps": 10,
+      "loop": true
+    },
+    "write": {
+      "sheet": "write.png",
+      "columns": 15,
+      "rows": 1,
+      "frames": 15,
+      "fps": 10,
+      "loop": true
+    },
+    "sleep": {
+      "sheet": "sleep.png",
+      "columns": 7,
+      "rows": 2,
+      "frames": 14,
+      "fps": 8,
+      "loop": true
+    },
+    "watch_film": {
+      "sheet": "watch_film.png",
+      "columns": 7,
+      "rows": 2,
+      "frames": 14,
+      "fps": 8,
+      "loop": true
+    },
+    "drag": {
+      "sheet": "drag.png",
+      "columns": 7,
+      "rows": 2,
+      "frames": 14,
+      "fps": 8,
+      "loop": true
+    },
+    "sneak": {
+      "sheet": "sneak.png",
+      "columns": 7,
+      "rows": 2,
+      "frames": 14,
+      "fps": 8,
+      "loop": true
+    },
+    "alarm": {
+      "sheet": "alarm.png",
+      "columns": 13,
+      "rows": 1,
+      "frames": 13,
+      "fps": 12,
+      "loop": true
+    }
+  }
+}
